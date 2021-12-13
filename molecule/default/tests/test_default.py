@@ -106,7 +106,7 @@ def test_package(host, get_vars):
 
 
 @pytest.mark.parametrize("dirs", [
-    "/etc/redis.d",
+    "/etc/loki",
 ])
 def test_directories(host, dirs):
     d = host.file(dirs)
@@ -115,7 +115,7 @@ def test_directories(host, dirs):
 
 
 @pytest.mark.parametrize("files", [
-    "/etc/redis.d/general.conf"
+    "/etc/loki/loki.yml"
 ])
 def test_files(host, files):
     f = host.file(files)
@@ -124,17 +124,14 @@ def test_files(host, files):
 
 
 def test_user(host):
-    assert host.group("redis").exists
-    assert host.user("redis").exists
-    assert "redis" in host.user("redis").groups
-    # assert host.user("redis").shell == "/sbin/nologin"
-    assert host.user("redis").home == "/var/lib/redis"
+    assert host.group("loki").exists
+    assert host.user("loki").exists
+    assert "loki" in host.user("loki").groups
+    assert host.user("loki").home == "/nonexistent"
 
 
 def test_service(host, get_vars):
-    service_name = get_vars.get("redis_daemon")
-
-    service = host.service(service_name)
+    service = host.service("loki")
     assert service.is_enabled
     assert service.is_running
 
@@ -143,8 +140,8 @@ def test_open_port(host, get_vars):
     for i in host.socket.get_listening_sockets():
         print(i)
 
-    bind_address = get_vars.get("redis_network_bind")
-    bind_port = get_vars.get("redis_network_port")
+    bind_address = "127.0.0.1"
+    bind_port = 3100
 
     service = host.socket("tcp://{0}:{1}".format(bind_address, bind_port))
     assert service.is_listening
