@@ -1,0 +1,25 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+{{ ansible_managed | comment }}
+{# https://github.com/grafana/loki/blob/v2.3.0/docs/sources/configuration/examples.md #}
+# https://github.com/grafana/loki/blob/master/docs/configuration/README.md#configuration-file-reference
+
+{% if loki_target != "" %}
+target: {{ loki_target }}
+{% endif %}
+
+{% if loki_auth_enabled %}
+auth_enabled: {{ loki_auth_enabled | bool | ternary('true', 'false') }}
+{% endif %}
+
+{% include('loki.d/server.j2') %}
+{% include('loki.d/distributor.j2') %}
+{% include('loki.d/ingester.j2') %}
+{% include('loki.d/ingester_client.j2') %}
+{% include('loki.d/schema_config.j2') %}
+{% include('loki.d/querier.j2') %}
+{% include('loki.d/storage_config.j2') %}
+{% include('loki.d/chunk_store_config.j2') %}
+{% include('loki.d/limits_config.j2') %}
+{% include('loki.d/frontend_worker_config.j2') %}
+{% include('loki.d/table_manager.j2') %}
+{% include('loki.d/runtime_config.j2') %}

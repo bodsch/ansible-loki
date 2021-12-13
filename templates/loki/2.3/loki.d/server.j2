@@ -1,0 +1,4 @@
+{% if loki_config_server != [] %}
+server:
+  {{ loki_config_server | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

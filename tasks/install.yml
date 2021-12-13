@@ -1,0 +1,28 @@
+---
+
+- name: create loki data directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ loki_system_user }}"
+    group: "{{ loki_system_group }}"
+    mode: 0755
+  loop:
+    - "{{ loki_storage_dir }}"
+    - "{{ loki_storage_dir }}/index"
+    - "{{ loki_storage_dir }}/chunks"
+    - "{{ loki_storage_dir }}/wal"
+    - "{{ loki_storage_dir }}/compactor"
+
+- name: create systemd service unit
+  template:
+    src: "init/systemd/loki.service.j2"
+    dest: "{{ systemd_lib_directory }}/loki.service"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - daemon-reload
+    - restart loki
+
+...

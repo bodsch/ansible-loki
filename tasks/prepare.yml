@@ -1,0 +1,53 @@
+---
+
+- name: detect installed loki version
+  stat:
+    path: "{{ loki_install_path }}/loki"
+  register: stat_loki_binary
+
+- name: create local tmp directory
+  become: false
+  delegate_to: 127.0.0.1
+  file:
+    path: "{{ loki_local_tmp_directory }}"
+    state: directory
+    mode: 0750
+
+- name: Create loki group
+  group:
+    name: "{{ loki_system_group }}"
+    state: present
+    system: true
+  when:
+    - loki_system_group != "root"
+
+- name: Create loki user
+  user:
+    name: "{{ loki_system_user }}"
+    groups: "{{ loki_system_group }}"
+    append: true
+    shell: /usr/sbin/nologin
+    system: true
+    createhome: false
+    home: /nonexistent
+  when:
+    - loki_system_user != "root"
+
+- name: create install directory
+  file:
+    path: "{{ loki_install_path }}"
+    state: directory
+    owner: "{{ loki_system_user }}"
+    group: "{{ loki_system_group }}"
+    mode: 0755
+
+- name: fix directory rights for {{ loki_install_path | dirname }}
+  file:
+    path: "{{ loki_install_path | dirname }}"
+    state: directory
+    owner: "{{ loki_system_user }}"
+    group: "{{ loki_system_group }}"
+    mode: 0755
+    recurse: true
+
+...

@@ -1,0 +1,17 @@
+# This is a configuration to deploy Loki depending only on a storage solution
+# for example, an S3-compatible API like MinIO.
+# The ring configuration is based on the gossip memberlist and the index is shipped to storage
+# via Single Store (boltdb-shipper)
+
+{% if loki_auth_enabled %}
+auth_enabled: {{ loki_auth_enabled | bool | ternary('true', 'false') }}
+{% endif %}
+
+{% include('loki.d/server.j2') %}
+{% include('loki.d/distributor.j2') %}
+{% include('loki.d/ingester.j2') %}
+{% include('loki.d/memberlist.j2') %}
+{% include('loki.d/schema_config.j2') %}
+{% include('loki.d/storage_config.j2') %}
+{% include('loki.d/limits_config.j2') %}
+{% include('loki.d/compactor.j2') %}

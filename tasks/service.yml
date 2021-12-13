@@ -1,0 +1,13 @@
+---
+
+- name: restart loki if needed
+  meta: flush_handlers
+
+- name: ensure loki is enabled on boot
+  become: true
+  service:
+    name: loki
+    enabled: true
+    state: started
+
+...

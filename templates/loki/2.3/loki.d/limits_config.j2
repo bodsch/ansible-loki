@@ -1,0 +1,4 @@
+{% if loki_config_limits != [] %}
+limits_config:
+  {{ loki_config_limits | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

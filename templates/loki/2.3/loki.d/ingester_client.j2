@@ -1,0 +1,4 @@
+{% if loki_config_ingester_client != [] %}
+ingester_client:
+  {{ loki_config_ingester_client | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

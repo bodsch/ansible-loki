@@ -1,0 +1,4 @@
+{% if loki_config_table_manager != [] %}
+table_manager:
+  {{ loki_config_table_manager | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

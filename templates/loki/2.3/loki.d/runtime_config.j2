@@ -1,0 +1,4 @@
+{% if loki_config_runtime != [] %}
+runtime_config:
+  {{ loki_config_runtime | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

@@ -1,0 +1,25 @@
+---
+
+- name: create loki configuration directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: "{{ loki_system_group }}"
+    mode: 0770
+  with_items:
+    - "{{ loki_config_dir }}"
+
+- name: create loki configuration
+  template:
+    src: "loki/{{ loki_main_version }}/loki.yml.j2"
+    dest: "{{ loki_config_dir }}/loki.yml"
+    force: true
+    owner: root
+    group: "{{ loki_system_group }}"
+    mode: 0640
+  notify:
+    - verify config
+    - restart loki
+
+...

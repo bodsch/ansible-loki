@@ -1,0 +1,57 @@
+---
+
+- name: download {{ item }} binary to local folder
+  become: false
+  delegate_to: 127.0.0.1
+  get_url:
+    url: "{{ loki_release_download_url }}/download/v{{ loki_version }}/{{ item }}-linux-amd64.zip"
+    dest: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  check_mode: false
+
+- name: extract {{ item }} archive
+  become: false
+  delegate_to: 127.0.0.1
+  unarchive:
+    src: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
+    dest: "{{ loki_local_tmp_directory }}/"
+    copy: false
+
+- name: detect binary file for {{ item }}
+  become: false
+  delegate_to: 127.0.0.1
+  stat:
+    path: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64"
+  register: stat_file_binary
+
+- block:
+    - name: propagate loki binaries
+      copy:
+        src: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64"
+        dest: "{{ loki_install_path }}/{{ item }}"
+        mode: 0755
+        owner: "{{ loki_system_user }}"
+        group: "{{ loki_system_group }}"
+
+    - name: make files executable
+      file:
+        path: "{{ loki_install_path }}/{{ item }}"
+        mode: 0755
+        owner: "{{ loki_system_user }}"
+        group: "{{ loki_system_group }}"
+  when:
+    - stat_file_binary.stat.exists
+
+- name: create link to binary
+  file:
+    src: "{{ loki_install_path }}/{{ item }}"
+    dest: /usr/bin/{{ item }}
+    state: link
+    force: true
+  notify:
+    - restart loki
+
+...

@@ -1,0 +1,4 @@
+{% if loki_config_chunk_store != [] %}
+chunk_store_config:
+  {{ loki_config_chunk_store | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}
