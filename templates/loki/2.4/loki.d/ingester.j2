@@ -1,4 +1,4 @@
-{% if loki_config_ingester != [] %}
+{% if loki_config_ingester is defined and loki_config_ingester | count > 0 %}
 ingester:
   {{ loki_config_ingester | to_nice_yaml(indent=2) | indent(2, False) }}
 {% endif %}

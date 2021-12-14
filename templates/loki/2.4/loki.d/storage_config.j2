@@ -1,4 +1,4 @@
-{% if loki_config_storage != [] %}
+{% if loki_config_storage is defined and loki_config_storage | count > 0 %}
 storage_config:
   {{ loki_config_storage | to_nice_yaml(indent=2) | indent(2, False) }}
 {% endif %}
