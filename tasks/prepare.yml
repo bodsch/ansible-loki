@@ -18,6 +18,10 @@
         - default.yaml
       skip: true
 
+- name: update package cache
+  package:
+    update_cache: true
+
 - name: install dependency
   package:
     name: "{{ loki_requirements }}"
