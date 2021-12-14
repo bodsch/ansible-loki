@@ -71,12 +71,13 @@ def get_vars(host):
     elif distribution in ['arch']:
         os = "archlinux"
 
-    print(" -> {} / {}".format(distribution, os))
+    # print(" -> {} / {}".format(distribution, os))
+    # print(" -> {}".format(base_dir))
 
     file_defaults      = read_ansible_yaml("{}/defaults/main".format(base_dir), "role_defaults")
     file_vars          = read_ansible_yaml("{}/vars/main".format(base_dir), "role_vars")
     file_distibution   = read_ansible_yaml("{}/vars/{}".format(base_dir, os), "role_distibution")
-    file_molecule      = read_ansible_yaml("{}/group_vars/all/vars".format(base_dir), "test_vars")
+    file_molecule      = read_ansible_yaml("{}/group_vars/all/vars".format(molecule_dir), "test_vars")
     # file_host_molecule = read_ansible_yaml("{}/host_vars/{}/vars".format(base_dir, HOST), "host_vars")
 
     defaults_vars      = host.ansible("include_vars", file_defaults).get("ansible_facts").get("role_defaults")
@@ -104,7 +105,9 @@ def test_package(host, get_vars):
     install_path = get_vars.get("loki_install_path")
 
     for pack in packages:
-        f = host.file("{}/{}".format(install_path, pack))
+        _file = "{}/{}".format(install_path, pack)
+        print(_file)
+        f = host.file(_file)
         assert f.exists
         assert f.is_file
 
