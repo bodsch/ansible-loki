@@ -2,6 +2,18 @@
 
 loki_version: "2.3.0"
 
+loki_config_ingester:
+  lifecycler:
+    address: 127.0.0.1
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 1
+    final_sleep: 0s
+  chunk_idle_period: 5m
+  chunk_retain_period: 30s
+
+
 # loki_config_server: {}
 # loki_config_distributor: {}
 # loki_config_ingester: {}
