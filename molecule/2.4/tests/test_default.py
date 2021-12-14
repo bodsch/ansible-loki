@@ -98,11 +98,15 @@ def get_vars(host):
 
 
 def test_package(host, get_vars):
-    packages = get_vars.get("redis_packages")
+    """
+    """
+    packages = get_vars.get("loki_packages")
+    install_path = get_vars.get("loki_install_path")
 
     for pack in packages:
-        p = host.package(pack)
-        assert p.is_installed
+        f = host.file("{}/{}".format(install_path, pack))
+        assert f.exists
+        assert f.is_file
 
 
 @pytest.mark.parametrize("dirs", [
@@ -140,8 +144,8 @@ def test_open_port(host, get_vars):
     for i in host.socket.get_listening_sockets():
         print(i)
 
-    bind_address = "127.0.0.1"
-    bind_port = 3100
+    address = get_vars.get("loki_listen_address")
+    port = get_vars.get("loki_listen_port")
 
-    service = host.socket("tcp://{0}:{1}".format(bind_address, bind_port))
+    service = host.socket("tcp://{0}:{1}".format(address, port))
     assert service.is_listening

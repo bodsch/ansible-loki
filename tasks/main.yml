@@ -4,9 +4,7 @@
 
 - name: download archives
   include_tasks: download.yml
-  loop:
-    - loki
-    - logcli
+  loop: "{{ loki_packages }}"
   loop_control:
     index_var: index
     label: "{{ item }}"
