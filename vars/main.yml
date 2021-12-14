@@ -12,7 +12,9 @@ loki_packages:
   - loki
   - logcli
 
-systemd_lib_directory: /lib/systemd/system
+loki_requirements:
+  - iproute2
 
+systemd_lib_directory: /lib/systemd/system
 
 ...

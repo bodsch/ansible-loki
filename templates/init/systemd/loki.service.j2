@@ -11,7 +11,7 @@ User        = {{ loki_system_user }}
 Group       = {{ loki_system_group }}
 ExecReload  = /bin/kill -HUP $MAINPID
 ExecStart   = /usr/bin/loki \
-  # [debug, info, warn, error] (default info)
+  {# [debug, info, warn, error] (default info) -#}
   -log.level {{ loki_log.level | default('info') }} \
   -config.file {{ loki_config_dir }}/loki.yml
 
