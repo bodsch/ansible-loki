@@ -1,0 +1,40 @@
+---
+
+galaxy_info:
+  role_name: loki
+  namespace: bodsch
+
+  author: Bodo Schulz
+  description: ansible role to setup loki
+  license: Apache
+  min_ansible_version: 2.9
+
+  platforms:
+    - name: EL
+      versions:
+        - 8
+    - name: Ubuntu
+      versions:
+        # 20.04
+        - focal
+    - name: Debian
+      versions:
+        # 10
+        - buster
+        # 11
+        - bullseye
+    - name: ArchLinux
+
+  galaxy_tags:
+    - loki
+    - logging
+    - collector
+    - monitoring
+    - metrics
+    - system
+    - grafana
+    - prometheus
+
+dependencies: []
+
+...
