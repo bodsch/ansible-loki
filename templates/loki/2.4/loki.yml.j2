@@ -13,3 +13,4 @@ auth_enabled: {{ loki_auth_enabled | bool | ternary('true', 'false') }}
 {% include('loki.d/storage_config.j2') %}
 {% include('loki.d/limits_config.j2') %}
 {% include('loki.d/compactor.j2') %}
+{% include('loki.d/ruler.j2') %}

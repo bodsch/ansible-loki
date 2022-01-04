@@ -13,6 +13,10 @@
     - "{{ loki_storage_dir }}/chunks"
     - "{{ loki_storage_dir }}/wal"
     - "{{ loki_storage_dir }}/compactor"
+    - "{{ loki_storage_dir }}/boltdb-shipper-active"
+    - "{{ loki_storage_dir }}/boltdb-shipper-cache"
+    - "{{ loki_storage_dir }}/rules"
+    - "{{ loki_storage_dir }}/rules-scratch"
 
 - name: create systemd service unit
   template:

@@ -9,6 +9,7 @@ Type        = simple
 Environment = "GOMAXPROCS={{ ansible_processor_vcpus | default(ansible_processor_count) }}"
 User        = {{ loki_system_user }}
 Group       = {{ loki_system_group }}
+WorkingDirectory = {{ loki_storage_dir }}
 ExecReload  = /bin/kill -HUP $MAINPID
 ExecStart   = /usr/bin/loki \
   {# [debug, info, warn, error] (default info) -#}
