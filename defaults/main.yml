@@ -8,9 +8,6 @@ loki_system_group: loki
 loki_config_dir: /etc/loki
 loki_storage_dir: /var/lib/loki
 
-loki_log:
-  level: info
-
 # A comma-separated list of components to run.
 # The default value "all" runs Loki in single binary mode.
 # The value "read" is an alias to run only read-path related components such as
@@ -19,7 +16,8 @@ loki_log:
 # the distributor and compactor, but all in the same process.
 # Supported values: all, compactor, distributor, ingester, querier, query-scheduler,
 #  ingester-querier, query-frontend, index-gateway, ruler, table-manager, read, write.
-loki_target: all
+loki_targets:
+  - all
 loki_auth_enabled: false
 
 # https://grafana.com/docs/loki/latest/configuration/#server_config

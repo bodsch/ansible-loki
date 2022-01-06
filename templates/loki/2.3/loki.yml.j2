@@ -1,11 +1,7 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
 {{ ansible_managed | comment }}
-{# https://github.com/grafana/loki/blob/v2.3.0/docs/sources/configuration/examples.md #}
-# https://github.com/grafana/loki/blob/master/docs/configuration/README.md#configuration-file-reference
 
-{% if loki_target != "" %}
-target: {{ loki_target }}
-{% endif %}
+target: {{ loki_targets | join(', ') }}
 
 auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', 'false') }}
 

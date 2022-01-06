@@ -19,10 +19,8 @@ loki_defaults_config_server:
   http_listen_address: "127.0.0.1"
   http_listen_port: 3100
   grpc_listen_address: "127.0.0.1"
-  grpc_listen_port: 0
   # [debug, info, warn, error] (default info)
-  log_level: "{{ loki_log.level }}"
-
+  log_level: info
 
 loki_defaults_config_distributor:
   ring:
