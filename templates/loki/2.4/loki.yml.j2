@@ -1,9 +1,7 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
 {{ ansible_managed | comment }}
 
-{% if loki_auth_enabled %}
-auth_enabled: {{ loki_auth_enabled | bool | ternary('true', 'false') }}
-{% endif %}
+auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', 'false') }}
 
 {% include('loki.d/server.j2') %}
 {% include('loki.d/distributor.j2') %}

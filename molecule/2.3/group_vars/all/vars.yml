@@ -2,38 +2,4 @@
 
 loki_version: "2.3.0"
 
-loki_config_ingester:
-  lifecycler:
-    address: 127.0.0.1
-    ring:
-      kvstore:
-        store: inmemory
-      replication_factor: 1
-    final_sleep: 0s
-  chunk_idle_period: 5m
-  chunk_retain_period: 30s
-
-
-# loki_config_server: {}
-# loki_config_distributor: {}
-# loki_config_ingester: {}
-# loki_config_ingester_client: {}
-# loki_config_memberlist: {}
-# loki_config_schema: {}
-# loki_config_querier: {}
-# loki_config_storage: {}
-# loki_config_chunk_store: {}
-
-# loki_config_limits:
-#   enforce_metric_name: false
-#   ingestion_burst_size_mb: 32
-#   ingestion_rate_mb: 16
-#   reject_old_samples: true
-#   reject_old_samples_max_age: 168h
-#   max_query_parallelism: 64
-#
-# loki_config_frontend_worker: {}
-# loki_config_table_manager: {}
-# loki_config_runtime: {}
-
 ...
