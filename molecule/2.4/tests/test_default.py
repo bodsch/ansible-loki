@@ -145,8 +145,10 @@ def test_open_port(host, get_vars):
     for i in host.socket.get_listening_sockets():
         print(i)
 
-    address = get_vars.get("loki_listen_address")
-    port = get_vars.get("loki_listen_port")
+    loki_server = get_vars.get("loki_config_server")
+
+    address = loki_server.get("http_listen_address")
+    port = loki_server.get("http_listen_port")
 
     service = host.socket("tcp://{0}:{1}".format(address, port))
     assert service.is_listening
