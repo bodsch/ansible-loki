@@ -1,5 +1,5 @@
 ---
-name: 2.4.x
+name: CI
 
 on:
   pull_request:
