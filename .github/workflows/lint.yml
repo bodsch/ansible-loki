@@ -1,5 +1,5 @@
 ---
-name: 2.3.x
+name: lint
 
 on:
   pull_request:
