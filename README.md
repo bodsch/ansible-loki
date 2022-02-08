@@ -21,10 +21,14 @@ Ansible role to setup [Loki](https://github.com/grafana/loki).
 
 Tested on
 
-* Debian 10 / 11
-* Ubuntu 20.10
-* CentOS 8
-* Oracle Linux 8
+* Debian based
+    - Debian 10 / 11
+    - Ubuntu 20.10
+* RedHat based
+    - CentOS 8 (**not longer supported**)
+    - Alma Linux 8
+    - Rocky Linux 8
+    - Oracle Linux 8
 * Arch Linux
 
 ## usage
