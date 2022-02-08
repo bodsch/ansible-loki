@@ -66,7 +66,7 @@ def get_vars(host):
 
     if distribution in ['debian', 'ubuntu']:
         os = "debian"
-    elif distribution in ['centos', 'redhat', 'ol']:
+    elif distribution in ['redhat', 'ol', 'centos', 'rocky', 'almalinux']:
         os = "redhat"
     elif distribution in ['arch']:
         os = "archlinux"

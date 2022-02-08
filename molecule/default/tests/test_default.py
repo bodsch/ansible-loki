@@ -64,15 +64,17 @@ def get_vars(host):
     base_dir, molecule_dir = base_directory()
     distribution = host.system_info.distribution
 
+    print(" -> {}".format(distribution))
+    print(" -> {}".format(base_dir))
+
     if distribution in ['debian', 'ubuntu']:
         os = "debian"
-    elif distribution in ['centos', 'redhat', 'ol']:
+    elif distribution in ['redhat', 'ol', 'centos', 'rocky', 'almalinux']:
         os = "redhat"
     elif distribution in ['arch']:
         os = "archlinux"
 
-    # print(" -> {} / {}".format(distribution, os))
-    # print(" -> {}".format(base_dir))
+    print(" -> {} / {}".format(distribution, os))
 
     file_defaults      = read_ansible_yaml("{}/defaults/main".format(base_dir), "role_defaults")
     file_vars          = read_ansible_yaml("{}/vars/main".format(base_dir), "role_vars")
