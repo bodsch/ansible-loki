@@ -27,7 +27,8 @@ jobs:
         python-version:
           - '3.9'
         ansible-version:
-          - '2.10'
+          - '3.4.0'
+          - '5.1.0'
 
     steps:
       - name: check out the codebase.
@@ -67,7 +68,8 @@ jobs:
         python-version:
           - '3.9'
         ansible-version:
-          - '2.10'
+          - '3.4.0'
+          - '5.1.0'
 
     steps:
       - name: check out the codebase.
@@ -101,12 +103,15 @@ jobs:
       fail-fast: false
       matrix:
         image:
-          - centos:8
+          # - centos:8
           - oraclelinux:8
+          - rockylinux:8
+          - almalinux:8
         python-version:
           - '3.9'
         ansible-version:
-          - '2.10'
+          - '3.4.0'
+          - '5.1.0'
 
     steps:
       - name: check out the codebase.
