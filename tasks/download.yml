@@ -31,27 +31,20 @@
     - name: propagate loki binaries
       copy:
         src: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64"
-        dest: "{{ loki_install_path }}/{{ item }}"
+        dest: "{{ binaries_install_path }}/{{ item }}"
         mode: 0755
         owner: "{{ loki_system_user }}"
         group: "{{ loki_system_group }}"
+      notify:
+        - restart loki
 
     - name: make files executable
       file:
-        path: "{{ loki_install_path }}/{{ item }}"
+        path: "{{ binaries_install_path }}/{{ item }}"
         mode: 0755
         owner: "{{ loki_system_user }}"
         group: "{{ loki_system_group }}"
   when:
     - stat_file_binary.stat.exists
-
-- name: create link to binary
-  file:
-    src: "{{ loki_install_path }}/{{ item }}"
-    dest: /usr/bin/{{ item }}
-    state: link
-    force: true
-  notify:
-    - restart loki
 
 ...

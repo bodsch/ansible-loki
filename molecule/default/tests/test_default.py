@@ -104,7 +104,7 @@ def test_package(host, get_vars):
     """
     """
     packages = get_vars.get("loki_packages")
-    install_path = get_vars.get("loki_install_path")
+    install_path = get_vars.get("binaries_install_path")
 
     for pack in packages:
         f = host.file("{}/{}".format(install_path, pack))

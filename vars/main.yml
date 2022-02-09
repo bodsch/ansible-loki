@@ -1,8 +1,8 @@
 ---
 
 loki_main_version: "{{ loki_version[0:3] }}"
+binaries_install_path: /usr/local/bin
 
-loki_install_path: /usr/local/bin/loki/{{ loki_version }}
 
 loki_local_tmp_directory: "{{
   lookup('env', 'CUSTOM_LOCAL_TMP_DIRECTORY') |

@@ -29,7 +29,7 @@
 
 - name: detect installed loki version
   stat:
-    path: "{{ loki_install_path }}/loki"
+    path: "{{ binaries_install_path }}/loki"
   register: stat_loki_binary
   ignore_errors: yes
 
@@ -60,23 +60,6 @@
     home: /nonexistent
   when:
     - loki_system_user != "root"
-
-- name: create install directory
-  file:
-    path: "{{ loki_install_path }}"
-    state: directory
-    owner: "{{ loki_system_user }}"
-    group: "{{ loki_system_group }}"
-    mode: 0755
-
-- name: fix directory rights for {{ loki_install_path | dirname }}
-  file:
-    path: "{{ loki_install_path | dirname }}"
-    state: directory
-    owner: "{{ loki_system_user }}"
-    group: "{{ loki_system_group }}"
-    mode: 0755
-    recurse: true
 
 - name: merge loki server configuration between defaults and custom
   set_fact:
