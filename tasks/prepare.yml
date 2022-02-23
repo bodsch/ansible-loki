@@ -22,6 +22,15 @@
   package:
     update_cache: true
 
+- name: define delegate instance for download handling
+  set_fact:
+    loki_delegate_to: "{{ ansible_host }}"
+    loki_local_tmp_directory: "{{
+        lookup('env', 'CUSTOM_LOCAL_TMP_DIRECTORY') |
+        default('/var/cache/ansible/loki', true) }}/{{ loki_version }}"
+  when:
+    - loki_direct_download
+
 - name: install dependency
   package:
     name: "{{ loki_requirements }}"
@@ -32,31 +41,31 @@
     path: "{{ loki_install_path }}/loki"
   register: stat_loki_binary
 
-- name: create local tmp directory
+- name: create download directory
   become: false
-  delegate_to: 127.0.0.1
+  delegate_to: "{{ loki_delegate_to }}"
   file:
     path: "{{ loki_local_tmp_directory }}"
     state: directory
     mode: 0750
 
-- name: Create loki group
-  group:
-    name: "{{ loki_system_group }}"
-    state: present
-    system: true
-  when:
-    - loki_system_group != "root"
+- name: user and group handling
+  block:
+    - name: create loki group
+      group:
+        name: "{{ loki_system_group }}"
+        state: present
+        system: true
 
-- name: Create loki user
-  user:
-    name: "{{ loki_system_user }}"
-    groups: "{{ loki_system_group }}"
-    append: true
-    shell: /usr/sbin/nologin
-    system: true
-    createhome: false
-    home: /nonexistent
+    - name: create loki user
+      user:
+        name: "{{ loki_system_user }}"
+        groups: "{{ loki_system_group }}"
+        append: true
+        shell: /usr/sbin/nologin
+        system: true
+        createhome: false
+        home: /nonexistent
   when:
     - loki_system_user != "root"
 
