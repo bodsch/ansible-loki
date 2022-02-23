@@ -8,7 +8,7 @@ loki_system_group: loki
 loki_config_dir: /etc/loki
 loki_storage_dir: /var/lib/loki
 
-loki_direct_download: true
+loki_direct_download: false
 
 # A comma-separated list of components to run.
 # The default value "all" runs Loki in single binary mode.
