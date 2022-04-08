@@ -4,7 +4,7 @@
 Ansible role to setup [Loki](https://github.com/grafana/loki).
 
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bodsch/ansible-loki/2.4.x)][ci]
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bodsch/ansible-loki)][ci]
 [![GitHub issues](https://img.shields.io/github/issues/bodsch/ansible-loki)][issues]
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/bodsch/ansible-loki)][releases]
 
@@ -21,15 +21,14 @@ Ansible role to setup [Loki](https://github.com/grafana/loki).
 
 Tested on
 
+* Arch Linux
 * Debian based
     - Debian 10 / 11
     - Ubuntu 20.10
 * RedHat based
-    - CentOS 8 (**not longer supported**)
     - Alma Linux 8
     - Rocky Linux 8
     - Oracle Linux 8
-* Arch Linux
 
 ## usage
 
@@ -82,6 +81,7 @@ loki_config_compactor: {}
 
 loki_config_ruler: {}
 ```
+
 ### `loki_targets`
 
 A list of components to run.  

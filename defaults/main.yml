@@ -1,6 +1,6 @@
 ---
 
-loki_version: "2.4.1"
+loki_version: "2.4.2"
 loki_release_download_url: https://github.com/grafana/loki/releases
 
 loki_system_user: loki
