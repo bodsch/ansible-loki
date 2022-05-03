@@ -46,13 +46,4 @@
   when:
     - stat_file_binary.stat.exists
 
-- name: create link to binary
-  file:
-    src: "{{ loki_install_path }}/{{ item }}"
-    dest: /usr/bin/{{ item }}
-    state: link
-    force: true
-  notify:
-    - restart loki
-
 ...

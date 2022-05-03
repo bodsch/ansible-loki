@@ -1,5 +1,18 @@
 ---
 
+- name: create link to binary
+  file:
+    src: "{{ loki_install_path }}/{{ item }}"
+    dest: /usr/bin/{{ item }}
+    state: link
+    force: true
+  loop: "{{ loki_packages }}"
+  loop_control:
+    index_var: index
+    label: "{{ item }}"
+  notify:
+    - restart loki
+
 - name: create loki data directory
   file:
     path: "{{ item }}"
