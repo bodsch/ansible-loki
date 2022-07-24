@@ -124,6 +124,15 @@ loki_defaults_config_ruler:
   enable_api: true
 
 
+go_arch_map:
+  x86_64: 'amd64'
+  aarch64: 'arm64'
+  armv7l: 'armv7'
+  armv6l: 'armv6'
+
+go_arch: "{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}"
+
 systemd_lib_directory: /lib/systemd/system
+
 
 ...

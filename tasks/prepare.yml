@@ -139,6 +139,14 @@
 #     mode: 0755
 #     recurse: true
 
+- name: create ansible local facts directory
+  file:
+    dest: /etc/ansible/facts.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0775
+
 - name: merge loki configuration between defaults and custom
   set_fact:
     loki_config_server: "{{ loki_defaults_config_server |
