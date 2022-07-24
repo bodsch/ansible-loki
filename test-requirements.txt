@@ -6,6 +6,6 @@ yamllint==1.26.3
 flake8==4.0.1
 pytest==6.2.5
 pytest-testinfra==6.4.0
-tox==3.24.3
+tox==3.25.1
 tox-gh-actions==2.6.0
 netaddr==0.8.0
