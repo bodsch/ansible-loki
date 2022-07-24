@@ -1,0 +1,24 @@
+---
+- name: converge
+  hosts: all
+  any_errors_fatal: false
+
+  environment:
+    NETRC: ''
+
+  roles:
+    - role: ansible-loki
+      vars:
+        loki_version: "2.3.0"
+
+    - role: ansible-loki
+      vars:
+        loki_version: "2.4.0"
+
+    - role: ansible-loki
+      vars:
+        loki_version: "2.5.0"
+
+    - role: ansible-loki
+      vars:
+        loki_version: "2.6.1"
