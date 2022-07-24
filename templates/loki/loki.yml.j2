@@ -27,5 +27,4 @@ auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', '
 {% include('loki.d/runtime_config.j2') %}
 # tracing
 # common
-analytics:
-  reporting_enabled: {{ loki_config_analytics.reporting_enabled | bool | ternary('true', 'false') }}
+{% include('loki.d/analytics.j2') %}
