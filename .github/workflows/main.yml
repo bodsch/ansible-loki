@@ -35,7 +35,7 @@ jobs:
           VALIDATE_YAML: true
 
   arch:
-    name: "loki: ${{ matrix.scenario }} - ${{ matrix.image }} / python: ${{ matrix.python-version }}, ansible: ${{ matrix.ansible-version }}"
+    name: "${{ matrix.image }} / ansible: ${{ matrix.ansible-version }}, loki: ${{ matrix.scenario }}"
     needs:
       - lint
     runs-on: ubuntu-latest
@@ -45,7 +45,7 @@ jobs:
         image:
           - archlinux:latest
         ansible-version:
-          - '4.1'
+          - '4.10'
           - '5.1'
           - '6.1'
         scenario:
@@ -79,7 +79,7 @@ jobs:
           DISTRIBUTION: ${{ matrix.image }}
 
   deb:
-    name: "loki: ${{ matrix.scenario }} - ${{ matrix.image }} / python: ${{ matrix.python-version }}, ansible: ${{ matrix.ansible-version }}"
+    name: "${{ matrix.image }} / ansible: ${{ matrix.ansible-version }}, loki: ${{ matrix.scenario }}"
     needs:
       - lint
     runs-on: ubuntu-latest
@@ -90,7 +90,7 @@ jobs:
           - debian:11
           - ubuntu:20.04
         ansible-version:
-          - '4.1'
+          - '4.10'
           - '5.1'
           - '6.1'
         scenario:
@@ -124,7 +124,7 @@ jobs:
           DISTRIBUTION: ${{ matrix.image }}
 
   rpm:
-    name: "loki: ${{ matrix.scenario }} - ${{ matrix.image }} / python: ${{ matrix.python-version }}, ansible: ${{ matrix.ansible-version }}"
+    name: "${{ matrix.image }} / ansible: ${{ matrix.ansible-version }}"
     needs:
       - lint
     runs-on: ubuntu-latest
