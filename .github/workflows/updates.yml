@@ -24,10 +24,8 @@ jobs:
       matrix:
         image:
           - debian:11
-        python-version:
-          - '3.9'
         ansible-version:
-          - '5.1.0'
+          - "5.1"
 
     steps:
       - name: check out the codebase.
@@ -47,7 +45,7 @@ jobs:
 
       - name: test with tox
         run: |
-          tox -e py$(printf "${{ matrix.python-version }}" | tr -d '.')-ansible$(printf "${{ matrix.ansible-version }}" | tr -d '.') \
+          tox -e ansible_$(printf "${{ matrix.ansible-version }}") \
             -- molecule test --scenario-name with-updates
         env:
           PY_COLORS: '1'
