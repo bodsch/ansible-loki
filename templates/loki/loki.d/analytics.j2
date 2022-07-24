@@ -1,0 +1,5 @@
+
+{% if loki_main_version is version_compare('2.5', '>=' ) %}
+analytics:
+  reporting_enabled: {{ loki_config_analytics.reporting_enabled | bool | ternary('true', 'false') }}
+{% endif %}
