@@ -1,0 +1,69 @@
+---
+
+loki_version: "2.5.0"
+
+loki_config_server:
+  http_listen_address: "127.0.0.1"
+  http_listen_port: 3100
+  log_level: info
+  graceful_shutdown_timeout: 10s
+
+loki_config_distributor:
+  ring:
+    kvstore:
+      store: inmemory
+    heartbeat_timeout: 30s
+
+loki_config_querier:
+  query_timeout: 30s
+
+loki_config_ingester_client:
+  pool_config:
+    client_cleanup_period: 30s
+    health_check_ingesters: true
+
+loki_config_ingester:
+  lifecycler:
+    ring:
+      kvstore:
+        store: inmemory
+      replication_factor: 2
+    interface_names:
+      - eth0
+    final_sleep: 10s
+  wal:
+    enabled: true
+    flush_on_shutdown: true
+
+loki_config_storage:
+  index_cache_validity: 1m0s
+  disable_broad_index_queries: true
+  index_queries_cache_config:
+    background:
+      writeback_goroutines: 20
+    redis:
+      endpoint: "redis:6379"
+      master_name: ""
+      db: 10
+      max_connection_age: 10s
+    fifocache:
+      max_size_bytes: 128MB
+      max_size_items: 100
+      ttl: 1h0m0s
+      purgeinterval: 10s
+
+loki_config_chunk_store:
+  chunk_cache_config:
+    enable_fifocache: true
+    redis:
+      endpoint: "redis:6379"
+      master_name: ""
+      db: 10
+      max_connection_age: 10s
+    fifocache:
+      max_size_bytes: 128MB
+      max_size_items: 100
+      ttl: 1h0m0s
+      purgeinterval: 10s
+
+...

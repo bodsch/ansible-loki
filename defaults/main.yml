@@ -1,6 +1,6 @@
 ---
 
-loki_version: "2.4.2"
+loki_version: "2.6.1"
 loki_release_download_url: https://github.com/grafana/loki/releases
 
 loki_system_user: loki
@@ -20,6 +20,7 @@ loki_direct_download: false
 #  ingester-querier, query-frontend, index-gateway, ruler, table-manager, read, write.
 loki_targets:
   - all
+
 loki_auth_enabled: false
 
 # https://grafana.com/docs/loki/latest/configuration/#server_config
@@ -52,5 +53,8 @@ loki_config_memberlist: {}
 loki_config_compactor: {}
 
 loki_config_ruler: {}
+
+loki_config_analytics:
+  reporting_enabled: false
 
 ...

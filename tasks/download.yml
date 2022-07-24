@@ -1,11 +1,26 @@
 ---
 
+# https://github.com/grafana/loki/releases/download/v2.6.1/SHA256SUMS
+
+- block:
+    - name: get checksum list
+      set_fact:
+        __loki_checksums: "{{ lookup('url', 'https://github.com/grafana/loki/releases/download/v' + loki_version + '/SHA256SUMS', wantlist=True) | list }}"
+      run_once: true
+
+    - name: get checksum for {{ go_arch }} architecture
+      set_fact:
+        # __loki_checksum: "{{ __loki_checksums | loki_checksum('linux', go_arch) }}"
+        __loki_checksum: "{{ __loki_checksums | loki_checksum(item, 'linux', go_arch) }}"
+  delegate_to: localhost
+
 - name: download {{ item }} binary to local folder
   become: false
   delegate_to: "{{ loki_delegate_to }}"
   get_url:
     url: "{{ loki_release_download_url }}/download/v{{ loki_version }}/{{ item }}-linux-amd64.zip"
     dest: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
+    checksum: "sha256:{{ __loki_checksum }}"
   register: _download_archive
   until: _download_archive is succeeded
   retries: 5

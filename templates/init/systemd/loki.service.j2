@@ -1,22 +1,24 @@
 {{ ansible_managed | comment }}
 
 [Unit]
-Description = Loki is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus
-After       = network-online.target
+Description      = Loki is a horizontally-scalable, highly-available, multi-tenant log aggregation system inspired by Prometheus
+After            = network-online.target
 
 [Service]
-Type        = simple
-Environment = "GOMAXPROCS={{ ansible_processor_vcpus | default(ansible_processor_count) }}"
-User        = {{ loki_system_user }}
-Group       = {{ loki_system_group }}
+Type             = simple
+Environment      = "GOMAXPROCS={{ ansible_processor_vcpus | default(ansible_processor_count) }}"
+User             = {{ loki_system_user }}
+Group            = {{ loki_system_group }}
 WorkingDirectory = {{ loki_storage_dir }}
-ExecReload  = /bin/kill -HUP $MAINPID
-ExecStart   = /usr/bin/loki \
-  -config.file {{ loki_config_dir }}/loki.yml
 
-LimitNOFILE = 65000
+ExecReload       = /bin/kill -HUP $MAINPID
+
+ExecStartPre     = /usr/bin/loki -config.file {{ loki_config_dir }}/loki.yml -verify-config -log.level debug
+ExecStart        = /usr/bin/loki -config.file {{ loki_config_dir }}/loki.yml
+
+LimitNOFILE      = 65000
 SyslogIdentifier = loki
-Restart     = always
+Restart          = always
 
 [Install]
-WantedBy    = multi-user.target
+WantedBy         = multi-user.target

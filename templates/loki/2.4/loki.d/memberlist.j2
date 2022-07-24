@@ -1,4 +1,0 @@
-{% if loki_config_memberlist is defined and loki_config_memberlist | count > 0 %}
-memberlist:
-  {{ loki_config_memberlist | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

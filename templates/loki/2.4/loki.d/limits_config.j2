@@ -1,4 +1,0 @@
-{% if loki_config_limits is defined and loki_config_limits | count > 0 %}
-limits_config:
-  {{ loki_config_limits | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

@@ -64,9 +64,6 @@ def get_vars(host):
     base_dir, molecule_dir = base_directory()
     distribution = host.system_info.distribution
 
-    print(" -> {}".format(distribution))
-    print(" -> {}".format(base_dir))
-
     if distribution in ['debian', 'ubuntu']:
         os = "debian"
     elif distribution in ['redhat', 'ol', 'centos', 'rocky', 'almalinux']:
@@ -74,7 +71,8 @@ def get_vars(host):
     elif distribution in ['arch']:
         os = "archlinux"
 
-    print(" -> {} / {}".format(distribution, os))
+    # print(" -> {} / {}".format(distribution, os))
+    # print(" -> {}".format(base_dir))
 
     file_defaults      = read_ansible_yaml("{}/defaults/main".format(base_dir), "role_defaults")
     file_vars          = read_ansible_yaml("{}/vars/main".format(base_dir), "role_vars")
@@ -100,39 +98,15 @@ def get_vars(host):
     return result
 
 
-def local_facts(host):
-    """
-      return local facts
-    """
-    return host.ansible("setup").get("ansible_facts").get("ansible_local").get("loki")
-
-
-def test_files(host, get_vars):
+def test_package(host, get_vars):
     """
     """
-    version = local_facts(host).get("version")
+    packages = get_vars.get("loki_packages")
+    install_path = get_vars.get("loki_install_path")
 
-    install_dir = get_vars.get("loki_install_path")
-    defaults_dir = get_vars.get("loki_defaults_directory")
-    config_dir = get_vars.get("loki_config_dir")
-
-    if 'latest' in install_dir:
-        install_dir = install_dir.replace('latest', version)
-
-    files = []
-    files.append("/usr/bin/loki")
-
-    if install_dir:
-        files.append("{}/loki".format(install_dir))
-    if defaults_dir:
-        files.append("{}/loki".format(defaults_dir))
-    if config_dir:
-        files.append("{}/loki.yml".format(config_dir))
-
-    print(files)
-
-    for _file in files:
-        f = host.file(_file)
+    for pack in packages:
+        f = host.file("{}/{}".format(install_path, pack))
+        assert f.exists
         assert f.is_file
 
 
@@ -142,6 +116,16 @@ def test_files(host, get_vars):
 def test_directories(host, dirs):
     d = host.file(dirs)
     assert d.is_directory
+    assert d.exists
+
+
+@pytest.mark.parametrize("files", [
+    "/etc/loki/loki.yml"
+])
+def test_files(host, files):
+    f = host.file(files)
+    assert f.exists
+    assert f.is_file
 
 
 def test_user(host):

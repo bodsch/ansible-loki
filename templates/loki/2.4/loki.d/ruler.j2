@@ -1,4 +1,0 @@
-{% if loki_config_ruler is defined and loki_config_ruler | count > 0 %}
-ruler:
-  {{ loki_config_ruler | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

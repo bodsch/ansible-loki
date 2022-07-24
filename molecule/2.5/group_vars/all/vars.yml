@@ -1,10 +1,11 @@
 ---
 
-loki_version: latest
+loki_version: "2.5.0"
 
 loki_config_server:
   http_listen_address: "127.0.0.1"
   http_listen_port: 3100
-  graceful_shutdown_timeout: 10s
+  grpc_listen_address: "127.0.0.1"
+  log_level: debug
 
 ...

@@ -12,7 +12,7 @@
 
 - name: create loki configuration
   template:
-    src: "loki/{{ loki_main_version }}/loki.yml.j2"
+    src: "loki/loki.yml.j2"
     dest: "{{ loki_config_dir }}/loki.yml"
     force: true
     owner: root
