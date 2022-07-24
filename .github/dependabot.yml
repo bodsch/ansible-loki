@@ -24,3 +24,8 @@ updates:
       - dependency-name: pytest-asyncio
         versions:
           - "> 0.10.0"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: weekly
