@@ -7,5 +7,5 @@ flake8==4.0.1
 pytest==6.2.5
 pytest-testinfra==6.8.0
 tox==3.25.1
-tox-gh-actions==2.6.0
+tox-gh-actions==2.9.1
 netaddr==0.8.0
