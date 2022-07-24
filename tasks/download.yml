@@ -10,7 +10,6 @@
 
     - name: get checksum for {{ go_arch }} architecture
       set_fact:
-        # __loki_checksum: "{{ __loki_checksums | loki_checksum('linux', go_arch) }}"
         __loki_checksum: "{{ __loki_checksums | loki_checksum(item, 'linux', go_arch) }}"
   delegate_to: localhost
 
