@@ -1,4 +1,0 @@
-{% if loki_config_frontend_worker is defined and loki_config_frontend_worker | count > 0 %}
-frontend_worker_config:
-  {{ loki_config_frontend_worker | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

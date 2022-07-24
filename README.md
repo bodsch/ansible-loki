@@ -13,6 +13,20 @@ Ansible role to setup [Loki](https://github.com/grafana/loki).
 [releases]: https://github.com/bodsch/ansible-loki/releases
 
 
+If `latest` is set for `loki_version`, the role tries to install the latest release version.  
+**Please use this with caution, as incompatibilities between releases may occur!**
+
+The binaries are installed below `/usr/local/bin/loki/${loki_version}` and later linked to `/usr/bin`. 
+This should make it possible to downgrade relatively safely.
+
+The Prometheus archive is stored on the Ansible controller, unpacked and then the binaries are copied to the target system.
+The cache directory can be defined via the environment variable `CUSTOM_LOCAL_TMP_DIRECTORY`. 
+By default it is `${HOME}/.cache/ansible/loki`.
+If this type of installation is not desired, the download can take place directly on the target system. 
+However, this must be explicitly activated by setting `loki_direct_download` to `true`.
+
+
+
 ## Requirements & Dependencies
 
 - None
@@ -34,10 +48,13 @@ Tested on
 
 Upstream configuration examples can be found in the [Configuration Examples](https://grafana.com/docs/loki/latest/configuration/examples/) document.
 
+For config upgrades [read](https://grafana.com/docs/loki/latest/upgrading)!
+
+
 ### default configuration
 
 ```yaml
-loki_version: "2.4.1"
+loki_version: "2.6.1"
 loki_release_download_url: https://github.com/grafana/loki/releases
 
 loki_system_user: loki
@@ -111,7 +128,6 @@ loki_auth_enabled: false
 loki_config_server:
   http_listen_address: "127.0.0.1"
   http_listen_port: 3100
-  grpc_listen_address: "127.0.0.1"
   # [debug, info, warn, error] (default info)
   log_level: info
 ```
@@ -147,7 +163,6 @@ loki_config_querier: {}
 ```yaml
 loki_config_ingester:
   lifecycler:
-    address: 127.0.0.1
     ring:
       kvstore:
         store: inmemory
@@ -279,6 +294,8 @@ loki_config_runtime: {}
 ```
 
 ### `loki_config_table_manager`
+
+only for version <= 2.3!
 
 [upstream configuration](https://grafana.com/docs/loki/latest/configuration/#table_manager_config)
 

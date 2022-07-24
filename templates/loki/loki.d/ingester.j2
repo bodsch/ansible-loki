@@ -1,0 +1,5 @@
+
+{% if loki_config_ingester | default({}) | count > 0 %}
+ingester:
+  {{ loki_config_ingester | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

@@ -1,4 +1,0 @@
-{% if loki_config_distributor is defined and loki_config_distributor | count > 0 %}
-distributor:
-  {{ loki_config_distributor | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

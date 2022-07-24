@@ -1,0 +1,5 @@
+
+{% if loki_config_compactor | default({}) | count > 0 %}
+compactor:
+  {{ loki_config_compactor | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

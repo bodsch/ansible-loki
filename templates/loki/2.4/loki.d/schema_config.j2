@@ -1,4 +1,0 @@
-{% if loki_config_schema is defined and loki_config_schema | count > 0 %}
-schema_config:
-  {{ loki_config_schema | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

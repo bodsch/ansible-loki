@@ -1,4 +1,0 @@
-{% if loki_config_server is defined and loki_config_server | count > 0 %}
-server:
-  {{ loki_config_server | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

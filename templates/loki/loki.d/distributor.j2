@@ -1,0 +1,5 @@
+
+{% if loki_config_distributor | default({}) | count > 0 %}
+distributor:
+  {{ loki_config_distributor | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

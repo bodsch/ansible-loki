@@ -36,6 +36,59 @@
     name: "{{ loki_requirements }}"
     state: present
 
+
+- block:
+    - name: get latest release
+      uri:
+        url: "https://api.github.com/repos/grafana/loki/releases/latest"
+        method: GET
+        return_content: true
+        status_code: 200
+        body_format: json
+        validate_certs: false
+        user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+        password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+      # no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
+      register: _latest_release
+      until: _latest_release.status == 200
+      retries: 5
+
+    - name: set loki version to {{ _latest_release.json.tag_name[1:] }}
+      set_fact:
+        loki_version: "{{ _latest_release.json.tag_name[1:] }}"
+  when:
+    - loki_version == "latest"
+
+- name: detect our installation path '{{ loki_install_path | dirname }}'
+  stat:
+    path: "{{ loki_install_path | dirname }}"
+    get_checksum: false
+  register: stat_loki_path
+  ignore_errors: true
+
+- name: user and group handling
+  block:
+    - name: create loki group
+      group:
+        name: "{{ loki_system_group }}"
+        state: present
+        system: true
+
+    - name: create loki user
+      user:
+        name: "{{ loki_system_user }}"
+        groups: "{{ loki_system_group }}"
+        append: true
+        shell: /usr/sbin/nologin
+        system: true
+        createhome: false
+        home: /nonexistent
+  when:
+    - loki_system_user != "root"
+
+- name: flush handlers
+  meta: flush_handlers
+
 - name: detect installed loki binary
   stat:
     path: "{{ loki_install_path }}/loki"
@@ -77,87 +130,45 @@
     group: "{{ loki_system_group }}"
     mode: 0755
 
-- name: fix directory rights for {{ loki_install_path | dirname }}
-  file:
-    path: "{{ loki_install_path | dirname }}"
-    state: directory
-    owner: "{{ loki_system_user }}"
-    group: "{{ loki_system_group }}"
-    mode: 0755
-    recurse: true
+# - name: fix directory rights for {{ loki_install_path | dirname }}
+#   file:
+#     path: "{{ loki_install_path | dirname }}"
+#     state: directory
+#     owner: "{{ loki_system_user }}"
+#     group: "{{ loki_system_group }}"
+#     mode: 0755
+#     recurse: true
 
-- name: merge loki server configuration between defaults and custom
+- name: merge loki configuration between defaults and custom
   set_fact:
     loki_config_server: "{{ loki_defaults_config_server |
       combine( loki_config_server, recursive=True ) }}"
-
-- name: merge loki distributor configuration between defaults and custom
-  set_fact:
     loki_config_distributor: "{{ loki_defaults_config_distributor |
       combine( loki_config_distributor, recursive=True ) }}"
-
-- name: merge loki querier configuration between defaults and custom
-  set_fact:
     loki_config_querier: "{{ loki_defaults_config_querier |
       combine( loki_config_querier, recursive=True ) }}"
-
-- name: merge loki ingester configuration between defaults and custom
-  set_fact:
     loki_config_ingester: "{{ loki_defaults_config_ingester |
       combine( loki_config_ingester, recursive=True ) }}"
-
-- name: merge loki ingester_client configuration between defaults and custom
-  set_fact:
     loki_config_ingester_client: "{{ loki_defaults_config_ingester_client |
       combine( loki_config_ingester_client, recursive=True ) }}"
-
-- name: merge loki storage configuration between defaults and custom
-  set_fact:
     loki_config_storage: "{{ loki_defaults_config_storage |
       combine( loki_config_storage, recursive=True ) }}"
-
-- name: merge loki chunk_store configuration between defaults and custom
-  set_fact:
     loki_config_chunk_store: "{{ loki_defaults_config_chunk_store |
       combine( loki_config_chunk_store, recursive=True ) }}"
-
-- name: merge loki schema configuration between defaults and custom
-  set_fact:
     loki_config_schema: "{{ loki_defaults_config_schema |
       combine( loki_config_schema, recursive=True ) }}"
-
-- name: merge loki limits configuration between defaults and custom
-  set_fact:
     loki_config_limits: "{{ loki_defaults_config_limits |
       combine( loki_config_limits, recursive=True ) }}"
-
-- name: merge loki frontend_worker configuration between defaults and custom
-  set_fact:
     loki_config_frontend_worker: "{{ loki_defaults_config_frontend_worker |
       combine( loki_config_frontend_worker, recursive=True ) }}"
-
-- name: merge loki runtime configuration between defaults and custom
-  set_fact:
     loki_config_runtime: "{{ loki_defaults_config_runtime |
       combine( loki_config_runtime, recursive=True ) }}"
-
-- name: merge loki table_manager configuration between defaults and custom
-  set_fact:
     loki_config_table_manager: "{{ loki_defaults_config_table_manager |
       combine( loki_config_table_manager, recursive=True ) }}"
-
-- name: merge loki memberlist configuration between defaults and custom
-  set_fact:
     loki_config_memberlist: "{{ loki_defaults_config_memberlist |
       combine( loki_config_memberlist, recursive=True ) }}"
-
-- name: merge loki compactor configuration between defaults and custom
-  set_fact:
     loki_config_compactor: "{{ loki_defaults_config_compactor |
       combine( loki_config_compactor, recursive=True ) }}"
-
-- name: merge loki ruler configuration between defaults and custom
-  set_fact:
     loki_config_ruler: "{{ loki_defaults_config_ruler |
       combine( loki_config_ruler, recursive=True ) }}"
 

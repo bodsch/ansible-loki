@@ -1,0 +1,31 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+{{ ansible_managed | comment }}
+# {{ loki_main_version }} / {{ loki_version }}
+
+target: {{ loki_targets | join(', ') }}
+
+auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', 'false') }}
+# ballast_bytes
+
+{% include('loki.d/server.j2') %}
+{% include('loki.d/distributor.j2') %}
+# querier
+# query_scheduler
+# frontend
+# query_range
+{% include('loki.d/ruler.j2') %}
+{% include('loki.d/ingester_client.j2') %}
+{% include('loki.d/ingester.j2') %}
+# index_gateway
+{% include('loki.d/schema_config.j2') %}
+{% include('loki.d/chunk_store_config.j2') %}
+{% include('loki.d/storage_config.j2') %}
+{% include('loki.d/compactor.j2') %}
+{% include('loki.d/limits_config.j2') %}
+{% include('loki.d/frontend_worker_config.j2') %}
+{% include('loki.d/table_manager.j2') %}
+{% include('loki.d/runtime_config.j2') %}
+# tracing
+# common
+analytics:
+  reporting_enabled: {{ loki_config_analytics.reporting_enabled | bool | ternary('true', 'false') }}

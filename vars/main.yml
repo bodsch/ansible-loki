@@ -20,7 +20,7 @@ loki_requirements:
 loki_defaults_config_server:
   http_listen_address: "127.0.0.1"
   http_listen_port: 3100
-  grpc_listen_address: "127.0.0.1"
+  # grpc_listen_address: "127.0.0.1"
   # [debug, info, warn, error] (default info)
   log_level: info
 
@@ -33,11 +33,11 @@ loki_defaults_config_querier: {}
 
 loki_defaults_config_ingester:
   lifecycler:
-    address: 127.0.0.1
     ring:
       kvstore:
+        # Supported values are: consul, etcd, inmemory, memberlist
         store: inmemory
-      replication_factor: 1
+      replication_factor: 2
     final_sleep: 0s
   # All chunks will be flushed when they hit this age, default is 1h
   max_chunk_age: 1h
@@ -122,6 +122,7 @@ loki_defaults_config_ruler:
     kvstore:
       store: inmemory
   enable_api: true
+
 
 systemd_lib_directory: /lib/systemd/system
 

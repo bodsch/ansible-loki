@@ -1,0 +1,85 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+lint: |
+  set -e
+  yamllint .
+  ansible-lint .
+  flake8 .
+
+platforms:
+  - name: instance
+    image: "bodsch/ansible-${DISTRIBUTION:-debian:11}"
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    docker_host: "${DOCKER_HOST:-unix://run/docker.sock}"
+    privileged: true
+    pre_build_image: true
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    published_ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    network_mode: default
+    docker_networks:
+      - name: loki
+        ipam_config:
+          - subnet: "10.20.0.0/24"
+            gateway: "10.20.0.1"
+    networks:
+      - name: loki
+        ipv4_address: "10.20.0.10"
+
+  - name: redis
+    image: "bodsch/ansible-${DISTRIBUTION:-debian:11}"
+    # image: bodsch/ansible-oraclelinux:8
+    command: ${MOLECULE_DOCKER_COMMAND:-""}
+    docker_host: "${DOCKER_HOST:-unix://run/docker.sock}"
+    privileged: true
+    pre_build_image: true
+    capabilities:
+      - SYS_ADMIN
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+    tmpfs:
+      - /run
+      - /tmp
+    network_mode: default
+    networks:
+      - name: loki
+        ipv4_address: "10.20.0.11"
+
+provisioner:
+  name: ansible
+  ansible_args:
+    - --diff
+    # - -vv
+  config_options:
+    defaults:
+      deprecation_warnings: True
+      stdout_callback: yaml
+      callbacks_enabled: profile_tasks
+
+scenario:
+  test_sequence:
+    - lint
+    - destroy
+    - dependency
+    - syntax
+    - create
+    - prepare
+    - converge
+    - verify
+    - destroy
+
+verifier:
+  name: testinfra
