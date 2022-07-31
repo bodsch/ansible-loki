@@ -37,7 +37,7 @@ loki_defaults_config_ingester:
       kvstore:
         # Supported values are: consul, etcd, inmemory, memberlist
         store: inmemory
-      replication_factor: 2
+      replication_factor: 1
     final_sleep: 0s
   # All chunks will be flushed when they hit this age, default is 1h
   max_chunk_age: 1h

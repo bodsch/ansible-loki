@@ -36,7 +36,6 @@
     name: "{{ loki_requirements }}"
     state: present
 
-
 - block:
     - name: get latest release
       uri:
