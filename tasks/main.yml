@@ -1,6 +1,7 @@
 ---
 
-- include_tasks: prepare.yml
+- name: prepare
+  include_tasks: prepare.yml
 
 - name: download archives
   include_tasks: download.yml
@@ -11,9 +12,13 @@
   when:
     - not stat_loki_binary.stat.exists
 
-- include_tasks: install.yml
+- name: install
+  include_tasks: install.yml
 
-- include_tasks: configure.yml
+- name: configure
+  include_tasks: configure.yml
 
-- include_tasks: service.yml
+- name: service
+  include_tasks: service.yml
+
 ...

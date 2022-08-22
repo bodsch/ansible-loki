@@ -35,6 +35,11 @@
   package:
     name: "{{ loki_requirements }}"
     state: present
+  when:
+    - loki_requirements | default([]) | count > 0
+
+- name: gathering facts now
+  setup:
 
 - block:
     - name: get latest release
@@ -148,35 +153,21 @@
 
 - name: merge loki configuration between defaults and custom
   set_fact:
-    loki_config_server: "{{ loki_defaults_config_server |
-      combine( loki_config_server, recursive=True ) }}"
-    loki_config_distributor: "{{ loki_defaults_config_distributor |
-      combine( loki_config_distributor, recursive=True ) }}"
-    loki_config_querier: "{{ loki_defaults_config_querier |
-      combine( loki_config_querier, recursive=True ) }}"
-    loki_config_ingester: "{{ loki_defaults_config_ingester |
-      combine( loki_config_ingester, recursive=True ) }}"
-    loki_config_ingester_client: "{{ loki_defaults_config_ingester_client |
-      combine( loki_config_ingester_client, recursive=True ) }}"
-    loki_config_storage: "{{ loki_defaults_config_storage |
-      combine( loki_config_storage, recursive=True ) }}"
-    loki_config_chunk_store: "{{ loki_defaults_config_chunk_store |
-      combine( loki_config_chunk_store, recursive=True ) }}"
-    loki_config_schema: "{{ loki_defaults_config_schema |
-      combine( loki_config_schema, recursive=True ) }}"
-    loki_config_limits: "{{ loki_defaults_config_limits |
-      combine( loki_config_limits, recursive=True ) }}"
-    loki_config_frontend_worker: "{{ loki_defaults_config_frontend_worker |
-      combine( loki_config_frontend_worker, recursive=True ) }}"
-    loki_config_runtime: "{{ loki_defaults_config_runtime |
-      combine( loki_config_runtime, recursive=True ) }}"
-    loki_config_table_manager: "{{ loki_defaults_config_table_manager |
-      combine( loki_config_table_manager, recursive=True ) }}"
-    loki_config_memberlist: "{{ loki_defaults_config_memberlist |
-      combine( loki_config_memberlist, recursive=True ) }}"
-    loki_config_compactor: "{{ loki_defaults_config_compactor |
-      combine( loki_config_compactor, recursive=True ) }}"
-    loki_config_ruler: "{{ loki_defaults_config_ruler |
-      combine( loki_config_ruler, recursive=True ) }}"
+    loki_config_server: "{{ loki_defaults_config_server | combine( loki_config_server, recursive=True ) }}"
+    loki_config_common: "{{ loki_defaults_config_common | combine( loki_config_common, recursive=True ) }}"
+    loki_config_distributor: "{{ loki_defaults_config_distributor | combine( loki_config_distributor, recursive=True ) }}"
+    loki_config_querier: "{{ loki_defaults_config_querier | combine( loki_config_querier, recursive=True ) }}"
+    loki_config_ingester: "{{ loki_defaults_config_ingester | combine( loki_config_ingester, recursive=True ) }}"
+    loki_config_ingester_client: "{{ loki_defaults_config_ingester_client | combine( loki_config_ingester_client, recursive=True ) }}"
+    loki_config_storage: "{{ loki_defaults_config_storage | combine( loki_config_storage, recursive=True ) }}"
+    loki_config_chunk_store: "{{ loki_defaults_config_chunk_store | combine( loki_config_chunk_store, recursive=True ) }}"
+    loki_config_schema: "{{ loki_defaults_config_schema | combine( loki_config_schema, recursive=True ) }}"
+    loki_config_limits: "{{ loki_defaults_config_limits | combine( loki_config_limits, recursive=True ) }}"
+    loki_config_frontend_worker: "{{ loki_defaults_config_frontend_worker | combine( loki_config_frontend_worker, recursive=True ) }}"
+    loki_config_runtime: "{{ loki_defaults_config_runtime | combine( loki_config_runtime, recursive=True ) }}"
+    loki_config_table_manager: "{{ loki_defaults_config_table_manager | combine( loki_config_table_manager, recursive=True ) }}"
+    loki_config_memberlist: "{{ loki_defaults_config_memberlist | combine( loki_config_memberlist, recursive=True ) }}"
+    loki_config_compactor: "{{ loki_defaults_config_compactor | combine( loki_config_compactor, recursive=True ) }}"
+    loki_config_ruler: "{{ loki_defaults_config_ruler | combine( loki_config_ruler, recursive=True ) }}"
 
 ...
