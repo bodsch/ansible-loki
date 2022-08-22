@@ -24,6 +24,8 @@ loki_defaults_config_server:
   # [debug, info, warn, error] (default info)
   log_level: info
 
+loki_defaults_config_common: {}
+
 loki_defaults_config_distributor:
   ring:
     kvstore:

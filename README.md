@@ -4,7 +4,7 @@
 Ansible role to setup [Loki](https://github.com/grafana/loki).
 
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bodsch/ansible-loki)][ci]
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bodsch/ansible-loki/CI)][ci]
 [![GitHub issues](https://img.shields.io/github/issues/bodsch/ansible-loki)][issues]
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/bodsch/ansible-loki)][releases]
 
@@ -66,9 +66,12 @@ loki_direct_download: false
 
 loki_targets:
   - all
+
 loki_auth_enabled: false
 
 loki_config_server: {}
+
+loki_config_common: {}
 
 loki_config_distributor: {}
 
@@ -103,8 +106,8 @@ loki_config_ruler: {}
 
 A list of components to run.  
 The default value `all` runs Loki in single binary mode.  
-The value `read` is an alias to run only read-path related components such as the querier and query-frontend, but all in the same process.
-The value `write` is an alias to run only write-path related components such as the distributor and compactor, but all in the same process.
+The value `read` is an alias to run only read-path related components such as the `querier` and `query-frontend`, but all in the same process.
+The value `write` is an alias to run only write-path related components such as the `distributor` and `compactor`, but all in the same process.
 
 Supported values: 
   `all`, `compactor`, `distributor`, `ingester`, `querier`, `query-scheduler`,

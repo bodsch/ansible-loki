@@ -23,8 +23,9 @@ loki_targets:
 
 loki_auth_enabled: false
 
-# https://grafana.com/docs/loki/latest/configuration/#server_config
 loki_config_server: {}
+
+loki_config_common: {}
 
 loki_config_distributor: {}
 

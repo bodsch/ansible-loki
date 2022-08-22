@@ -2,13 +2,18 @@
 name: with updates
 
 on:
-  pull_request:
-  push:
-    branches:
-      - master
-      - main
   schedule:
-    - cron: "0 2 * * 0"
+    - cron: "0 4 * * 0"
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "code linter"
+    branches:
+      - main
+      - feature/*
+      - fix/*
+    types:
+      - completed
 
 defaults:
   run:
@@ -17,7 +22,7 @@ defaults:
 jobs:
 
   deb:
-    name: "${{ matrix.image }} / python: ${{ matrix.python-version }}, ansible: ${{ matrix.ansible-version }}"
+    name: "${{ matrix.image }} / ansible: ${{ matrix.ansible-version }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,10 +38,10 @@ jobs:
         with:
           path: 'ansible-loki'
 
-      - name: set up python ${{ matrix.python-version }}
+      - name: 🐍 set up python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.x'
 
       - name: install dependencies
         run: |

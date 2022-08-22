@@ -1,0 +1,5 @@
+
+{% if loki_config_common | default({}) | count > 0 %}
+common:
+  {{ loki_config_common | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

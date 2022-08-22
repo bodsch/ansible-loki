@@ -1,7 +1,5 @@
 ---
 
-# https://github.com/grafana/loki/releases/download/v2.6.1/SHA256SUMS
-
 - block:
     - name: get checksum list
       set_fact:
