@@ -31,6 +31,12 @@ loki_config_distributor: {}
 
 loki_config_querier: {}
 
+loki_config_query_range: {}
+
+loki_config_query_scheduler: {}
+
+loki_config_index_gateway: {}
+
 loki_config_ingester: {}
 
 loki_config_ingester_client: {}
@@ -43,6 +49,8 @@ loki_config_schema: {}
 
 loki_config_limits: {}
 
+loki_config_frontend: {}
+
 loki_config_frontend_worker: {}
 
 loki_config_runtime: {}
@@ -54,6 +62,8 @@ loki_config_memberlist: {}
 loki_config_compactor: {}
 
 loki_config_ruler: {}
+
+loki_config_tracing: {}
 
 loki_config_analytics:
   reporting_enabled: false

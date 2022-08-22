@@ -1,0 +1,5 @@
+
+{% if loki_config_frontend | default({}) | count > 0 %}
+frontend:
+  {{ loki_config_frontend | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

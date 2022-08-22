@@ -1,0 +1,5 @@
+
+{% if loki_config_index_gateway | default({}) | count > 0 %}
+index_gateway:
+  {{ loki_config_index_gateway | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}
