@@ -7,8 +7,6 @@ on:
   workflow_run:
     workflows:
       - "CI"
-      - "with redis"
-      - "with updates"
     branches:
       - main
     types:

@@ -33,6 +33,10 @@ loki_defaults_config_distributor:
 
 loki_defaults_config_querier: {}
 
+loki_defaults_config_query_range: {}
+
+loki_defaults_config_query_scheduler: {}
+
 loki_defaults_config_ingester:
   lifecycler:
     ring:
@@ -59,6 +63,10 @@ loki_defaults_config_ingester:
     enabled: true
 
 loki_defaults_config_ingester_client: {}
+
+loki_defaults_config_index_gateway: {}
+
+loki_defaults_config_frontend: {}
 
 loki_defaults_config_storage:
   boltdb_shipper:
@@ -125,6 +133,7 @@ loki_defaults_config_ruler:
       store: inmemory
   enable_api: true
 
+loki_defaults_config_tracing: {}
 
 go_arch_map:
   x86_64: 'amd64'

@@ -1,0 +1,5 @@
+
+{% if loki_config_querier | default({}) | count > 0 %}
+querier:
+  {{ loki_config_querier | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}

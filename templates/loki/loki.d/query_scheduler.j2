@@ -1,0 +1,5 @@
+
+{% if loki_config_query_scheduler | default({}) | count > 0 %}
+query_scheduler:
+  {{ loki_config_query_scheduler | to_nice_yaml(indent=2) | indent(2, False) }}
+{% endif %}
