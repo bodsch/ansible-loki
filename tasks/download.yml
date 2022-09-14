@@ -9,11 +9,14 @@
     - name: get checksum for {{ go_arch }} architecture
       set_fact:
         __loki_checksum: "{{ __loki_checksums | loki_checksum(item, 'linux', go_arch) }}"
+  become: false
   delegate_to: localhost
+  run_once: true
 
 - name: download {{ item }} binary to local folder
   become: false
   delegate_to: "{{ loki_delegate_to }}"
+  run_once: "{{ 'false' if loki_direct_download else 'true' }}"
   get_url:
     url: "{{ loki_release_download_url }}/download/v{{ loki_version }}/{{ item }}-linux-amd64.zip"
     dest: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
@@ -27,6 +30,7 @@
 - name: extract {{ item }} archive
   become: false
   delegate_to: "{{ loki_delegate_to }}"
+  run_once: "{{ 'false' if loki_direct_download else 'true' }}"
   unarchive:
     src: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
     dest: "{{ loki_local_tmp_directory }}/"
@@ -35,6 +39,7 @@
 - name: detect binary file for {{ item }}
   become: false
   delegate_to: "{{ loki_delegate_to }}"
+  run_once: "{{ 'false' if loki_direct_download else 'true' }}"
   stat:
     path: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64"
   register: stat_file_binary
