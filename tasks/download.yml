@@ -1,26 +1,28 @@
 ---
 
-- block:
+- name: define checksum
+  become: false
+  delegate_to: localhost
+  run_once: true
+  block:
     - name: get checksum list
-      set_fact:
+      ansible.builtin.set_fact:
         __loki_checksums: "{{ lookup('url', 'https://github.com/grafana/loki/releases/download/v' + loki_version + '/SHA256SUMS', wantlist=True) | list }}"
       run_once: true
 
     - name: get checksum for {{ go_arch }} architecture
-      set_fact:
+      ansible.builtin.set_fact:
         __loki_checksum: "{{ __loki_checksums | loki_checksum(item, 'linux', go_arch) }}"
-  become: false
-  delegate_to: localhost
-  run_once: true
 
 - name: download {{ item }} binary to local folder
   become: false
   delegate_to: "{{ loki_delegate_to }}"
   run_once: "{{ 'false' if loki_direct_download else 'true' }}"
-  get_url:
+  ansible.builtin.get_url:
     url: "{{ loki_release_download_url }}/download/v{{ loki_version }}/{{ item }}-linux-amd64.zip"
     dest: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
     checksum: "sha256:{{ __loki_checksum }}"
+    mode: 0660
   register: _download_archive
   until: _download_archive is succeeded
   retries: 5
@@ -31,7 +33,7 @@
   become: false
   delegate_to: "{{ loki_delegate_to }}"
   run_once: "{{ 'false' if loki_direct_download else 'true' }}"
-  unarchive:
+  ansible.builtin.unarchive:
     src: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64.zip"
     dest: "{{ loki_local_tmp_directory }}/"
     copy: false
@@ -40,13 +42,16 @@
   become: false
   delegate_to: "{{ loki_delegate_to }}"
   run_once: "{{ 'false' if loki_direct_download else 'true' }}"
-  stat:
+  ansible.builtin.stat:
     path: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64"
   register: stat_file_binary
 
-- block:
+- name: copy files
+  when:
+    - stat_file_binary.stat.exists
+  block:
     - name: propagate loki binaries
-      copy:
+      ansible.builtin.copy:
         src: "{{ loki_local_tmp_directory }}/{{ item }}-linux-amd64"
         dest: "{{ loki_install_path }}/{{ item }}"
         mode: 0755
@@ -55,12 +60,10 @@
         remote_src: "{{ 'true' if loki_direct_download else 'false' }}"
 
     - name: make files executable
-      file:
+      ansible.builtin.file:
         path: "{{ loki_install_path }}/{{ item }}"
         mode: 0755
         owner: "{{ loki_system_user }}"
         group: "{{ loki_system_group }}"
-  when:
-    - stat_file_binary.stat.exists
 
 ...

@@ -2,7 +2,7 @@
 
 - name: verify config
   become: true
-  command: |
+  ansible.builtin.command: |
     loki \
       -verify-config \
       -log.level debug \
@@ -10,20 +10,22 @@
 
 - name: restart loki
   become: true
-  service:
+  ansible.builtin.service:
     name: loki
     state: restarted
 
 - name: reload loki
   become: true
-  service:
+  ansible.builtin.service:
     name: loki
     state: reloaded
 
 - name: daemon-reload
   become: true
-  systemd:
+  ansible.builtin.systemd:
     daemon_reload: true
     force: true
+  when:
+    - ansible_service_mgr | lower == "systemd"
 
 ...

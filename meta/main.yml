@@ -6,8 +6,9 @@ galaxy_info:
 
   author: Bodo Schulz
   description: ansible role to setup loki
+
   license: Apache
-  min_ansible_version: 2.9
+  min_ansible_version: "2.9"
 
   platforms:
     - name: ArchLinux
@@ -23,7 +24,7 @@ galaxy_info:
         - focal
     - name: EL
       versions:
-        - 8
+        - "8"
 
   galaxy_tags:
     - loki

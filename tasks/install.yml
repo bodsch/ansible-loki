@@ -1,7 +1,7 @@
 ---
 
 - name: create link to binary
-  file:
+  ansible.builtin.file:
     src: "{{ loki_install_path }}/{{ item }}"
     dest: /usr/bin/{{ item }}
     state: link
@@ -14,7 +14,7 @@
     - restart loki
 
 - name: create loki data directory
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: "{{ loki_system_user }}"
@@ -32,7 +32,7 @@
     - "{{ loki_storage_dir }}/rules-scratch"
 
 - name: create systemd service unit
-  template:
+  ansible.builtin.template:
     src: "init/systemd/loki.service.j2"
     dest: "{{ systemd_lib_directory }}/loki.service"
     owner: root
@@ -43,7 +43,7 @@
     - restart loki
 
 - name: create local facts
-  template:
+  ansible.builtin.template:
     src: ansible_facts.j2
     dest: /etc/ansible/facts.d/loki.fact
     mode: 0755

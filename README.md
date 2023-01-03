@@ -4,13 +4,15 @@
 Ansible role to setup [Loki](https://github.com/grafana/loki).
 
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/bodsch/ansible-loki/CI)][ci]
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/bodsch/ansible-loki/main.yml?branch=main)][ci]
 [![GitHub issues](https://img.shields.io/github/issues/bodsch/ansible-loki)][issues]
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/bodsch/ansible-loki)][releases]
+[![Ansible Quality Score](https://img.shields.io/ansible/quality/50067?label=role%20quality)][quality]
 
 [ci]: https://github.com/bodsch/ansible-loki/actions
 [issues]: https://github.com/bodsch/ansible-loki/issues?q=is%3Aopen+is%3Aissue
 [releases]: https://github.com/bodsch/ansible-loki/releases
+[quality]: https://galaxy.ansible.com/bodsch/loki
 
 
 If `latest` is set for `loki_version`, the role tries to install the latest release version.  
@@ -19,7 +21,7 @@ If `latest` is set for `loki_version`, the role tries to install the latest rele
 The binaries are installed below `/usr/local/bin/loki/${loki_version}` and later linked to `/usr/bin`. 
 This should make it possible to downgrade relatively safely.
 
-The Prometheus archive is stored on the Ansible controller, unpacked and then the binaries are copied to the target system.
+The Loki archive is stored on the Ansible controller, unpacked and then the binaries are copied to the target system.
 The cache directory can be defined via the environment variable `CUSTOM_LOCAL_TMP_DIRECTORY`. 
 By default it is `${HOME}/.cache/ansible/loki`.
 If this type of installation is not desired, the download can take place directly on the target system. 
@@ -133,7 +135,7 @@ Please read [Contribution](CONTRIBUTING.md)
 
 The `master` Branch is my *Working Horse* includes the "latest, hot shit" and can be complete broken!
 
-If you want to use something stable, please use a [Tagged Version](https://github.com/bodsch/ansible-loki/-/tags)!
+If you want to use something stable, please use a [Tagged Version](https://github.com/bodsch/ansible-loki/tags)!
 
 ---
 

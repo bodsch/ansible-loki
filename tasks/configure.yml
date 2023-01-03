@@ -1,7 +1,7 @@
 ---
 
 - name: create loki configuration directories
-  file:
+  ansible.builtin.file:
     path: "{{ item }}"
     state: directory
     owner: root
@@ -11,7 +11,7 @@
     - "{{ loki_config_dir }}"
 
 - name: create loki configuration
-  template:
+  ansible.builtin.template:
     src: "loki/loki.yml.j2"
     dest: "{{ loki_config_dir }}/loki.yml"
     force: true

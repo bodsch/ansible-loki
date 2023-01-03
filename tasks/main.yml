@@ -1,10 +1,10 @@
 ---
 
 - name: prepare
-  include_tasks: prepare.yml
+  ansible.builtin.include_tasks: prepare.yml
 
 - name: download archives
-  include_tasks: download.yml
+  ansible.builtin.include_tasks: download.yml
   loop: "{{ loki_packages }}"
   loop_control:
     index_var: index
@@ -13,12 +13,12 @@
     - not stat_loki_binary.stat.exists
 
 - name: install
-  include_tasks: install.yml
+  ansible.builtin.include_tasks: install.yml
 
 - name: configure
-  include_tasks: configure.yml
+  ansible.builtin.include_tasks: configure.yml
 
 - name: service
-  include_tasks: service.yml
+  ansible.builtin.include_tasks: service.yml
 
 ...
