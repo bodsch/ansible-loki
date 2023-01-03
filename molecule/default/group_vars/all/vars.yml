@@ -1,6 +1,6 @@
 ---
 
-loki_version: latest
+loki_version: 2.7.1
 
 loki_config_server:
   http_listen_address: "127.0.0.1"

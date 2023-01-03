@@ -40,8 +40,7 @@ platforms:
         ipv4_address: "10.20.0.10"
 
   - name: redis
-    image: "bodsch/ansible-${DISTRIBUTION:-debian:11}"
-    # image: bodsch/ansible-oraclelinux:8
+    image: "bodsch/ansible-debian:11"
     command: ${MOLECULE_DOCKER_COMMAND:-""}
     docker_host: "${DOCKER_HOST:-unix://run/docker.sock}"
     privileged: true
@@ -71,7 +70,6 @@ provisioner:
 
 scenario:
   test_sequence:
-    - lint
     - destroy
     - dependency
     - syntax

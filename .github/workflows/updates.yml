@@ -20,7 +20,6 @@ defaults:
     working-directory: 'ansible-loki'
 
 jobs:
-
   deb:
     name: "${{ matrix.image }} / ansible: ${{ matrix.ansible-version }}"
     runs-on: ubuntu-latest
@@ -30,7 +29,9 @@ jobs:
         image:
           - debian:11
         ansible-version:
-          - "5.1"
+          - "6.1"
+        scenario:
+          - "with-updates"
 
     steps:
       - name: check out the codebase.
@@ -51,7 +52,7 @@ jobs:
       - name: test with tox
         run: |
           tox -e ansible_$(printf "${{ matrix.ansible-version }}") \
-            -- molecule test --scenario-name with-updates
+            -- molecule test --scenario-name "${{ matrix.scenario }}"
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'

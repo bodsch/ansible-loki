@@ -62,7 +62,7 @@
       until: _latest_release.status == 200
       retries: 5
 
-    - name: set loki version to {{ _latest_release.json.tag_name[1:] }}
+    - name: re-define loki_version
       ansible.builtin.set_fact:
         loki_version: "{{ _latest_release.json.tag_name[1:] }}"
 

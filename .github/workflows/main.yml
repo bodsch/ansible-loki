@@ -33,8 +33,6 @@ jobs:
           - '5.1'
           - '6.1'
         scenario:
-          # - "2.3"
-          # - "2.4"
           - "2.5"
           - "2.6"
     steps:
@@ -76,8 +74,6 @@ jobs:
           - '5.1'
           - '6.1'
         scenario:
-          # - "2.3"
-          # - "2.4"
           - "2.5"
           - "2.6"
     steps:
@@ -118,6 +114,8 @@ jobs:
           - almalinux:8
         ansible-version:
           - '5.1'
+        scenario:
+          - "default"
 
     steps:
       - name: check out the codebase.
@@ -138,7 +136,7 @@ jobs:
       - name: test with tox
         run: |
           tox -e ansible_$(printf "${{ matrix.ansible-version }}") \
-            -- molecule test --scenario-name default
+            -- molecule test --scenario-name "${{ matrix.scenario }}"
         env:
           PY_COLORS: '1'
           ANSIBLE_FORCE_COLOR: '1'
