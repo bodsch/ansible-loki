@@ -18,17 +18,10 @@ platforms:
     docker_host: "${DOCKER_HOST:-unix://run/docker.sock}"
     privileged: true
     pre_build_image: true
-    capabilities:
-      - SYS_ADMIN
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:ro
-    tmpfs:
-      - /run
-      - /tmp
-    published_ports:
-      - 80:80
-      - 443:443
-      - 8080:8080
+    capabilities:
+      - SYS_ADMIN
     network_mode: default
     docker_networks:
       - name: loki
