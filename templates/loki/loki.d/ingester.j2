@@ -1,5 +1,60 @@
 
+{% import 'jinja_macros.j2' as tpl with context %}
 {% if loki_config_ingester | default({}) | count > 0 %}
 ingester:
-  {{ loki_config_ingester | to_nice_yaml(indent=2) | indent(2, False) }}
+  {# wal #}
+  {% if loki_config_ingester.wal is defined and
+        loki_config_ingester.wal | count > 0 %}
+  wal:
+    {% set valid_wal_keys = ["enabled", "dir", "flush_on_shutdown", "checkpoint_duration", "replay_memory_ceiling"] %}
+    {% for k, v in loki_config_ingester.wal.items() %}
+      {% if k in valid_wal_keys %}
+        {% if v is boolean %}
+    {{ k }}: {{ v | bool | ternary('true','false') }}
+        {% else %}
+    {{ k }}: {{ v }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {# lifecycler #}
+  {% if loki_config_ingester.lifecycler is defined and
+        loki_config_ingester.lifecycler | count > 0 %}
+  lifecycler:
+    {% if loki_config_ingester.lifecycler.ring is defined %}
+    ring:
+      {{ tpl.loki_rings(loki_config_ingester.lifecycler.ring | default({})) | indent(6, False) -}}
+    {% endif %}
+    {% set valid_keys = ["num_tokens", "heartbeat_period", "join_after", "observe_period", "min_ready_duration", "final_sleep"] %}
+    {% for k, v in loki_config_ingester.lifecycler.items() %}
+      {% if k in valid_keys %}
+        {% if v is boolean %}
+    {{ k }}: {{ v | bool | ternary('true','false') }}
+        {% else %}
+    {{ k }}: {{ v }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if loki_config_ingester.lifecycler.interface_names is defined and
+          loki_config_ingester.lifecycler.interface_names | count > 0 %}
+    interface_names:
+      {% for i in loki_config_ingester.lifecycler.interface_names %}
+      - {{ i }}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  {# other stuff #}
+  {% set valid_keys = [
+      "max_transfer_retries", "concurrent_flushes", "flush_check_period", "flush_op_timeout", "chunk_retain_period", "chunk_idle_period",
+      "chunk_block_size", "chunk_target_size", "chunk_encoding", "sync_period", "sync_min_utilization", "max_returned_stream_errors",
+      "max_chunk_age", "query_store_max_look_back_period", "autoforget_unhealthy", "index_shards" ] -%}
+  {% for k, v in loki_config_ingester.items() %}
+    {% if k in valid_keys %}
+      {% if v is boolean %}
+  {{ k }}: {{ v | bool | ternary('true','false') }}
+      {% else %}
+  {{ k }}: {{ v }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% endif %}

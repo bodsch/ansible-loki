@@ -1,5 +1,32 @@
 
 {% if loki_config_frontend | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#frontend #}
+  {%- set valid_keys = [
+    "max_outstanding_per_tenant", "querier_forget_delay", "compress_responses", "downstream_url", "log_queries_longer_than",
+    "scheduler_address", "scheduler_dns_lookup_period", "scheduler_worker_concurrency", "tail_proxy_url" ] -%}
+  {%- set valid_tls_keys = [
+    "tls_cert_path", "tls_key_path", "tls_ca_path", "tls_insecure_skip_verify", "tls_cipher_suites", "tls_min_version" ] -%}
 frontend:
-  {{ loki_config_frontend | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% for k, v in loki_config_frontend.items() %}
+    {% if k in valid_keys %}
+      {% if v is boolean %}
+  {{ k }}: {{ v | bool | ternary('true','false') }}
+      {% else %}
+  {{ k }}: {{ v }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_frontend.tail_tls_config is defined and
+        loki_config_frontend.tail_tls_config | count > 0 %}
+  tail_tls_config:
+    {% for k, v in loki_config_frontend.items() %}
+      {% if k in valid_tls_keys %}
+        {% if v is boolean %}
+    {{ k }}: {{ v | bool | ternary('true','false') }}
+        {% else %}
+    {{ k }}: {{ v }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 {% endif %}

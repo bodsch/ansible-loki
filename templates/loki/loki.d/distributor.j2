@@ -1,5 +1,89 @@
 
 {% if loki_config_distributor | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#distributor #}
 distributor:
+  {% set _kv_store = "inmemory" %}
+  {% if loki_config_distributor.ring.kvstore.store is defined and
+        loki_config_distributor.ring.kvstore.store in ["consul", "etcd", "inmemory", "memberlist"] %}
+    {% set _kv_store = loki_config_distributor.ring.kvstore.store %}
+  {% endif %}
+  ring:
+  {% if loki_config_distributor.ring.heartbeat_timeout is defined and
+        loki_config_distributor.ring.heartbeat_timeout | string | length > 0 %}
+    heartbeat_timeout: {{ loki_config_distributor.ring.heartbeat_timeout }}
+  {% endif %}
+    kvstore:
+      store: {{ _kv_store }}
+  {% if loki_config_distributor.ring.kvstore.prefix is defined and
+        loki_config_distributor.ring.kvstore.prefix | string | length > 0 %}
+      prefix: {{ loki_config_distributor.ring.kvstore.prefix }}
+  {% endif %}
+  {% if _kv_store == "consul" %}
+      consul:
+  {% endif %}
+  {% if _kv_store == "etcd" %}
+      etcd:
+  {% endif %}
+{#
+  {% if loki_config_distributor.rate_store is defined and
+        loki_config_distributor.rate_store | count > 0 %}
+  rate_store:
+    {% if loki_config_distributor.rate_store.max_request_parallelism is defined and
+          loki_config_distributor.rate_store.max_request_parallelism | string | length > 0 %}
+    max_request_parallelism: {{ loki_config_distributor.rate_store.max_request_parallelism }}
+    {% endif %}
+    {% if loki_config_distributor.rate_store.max_request_parallelism is defined and
+          loki_config_distributor.rate_store.max_request_parallelism | string | length > 0 %}
+    stream_rate_update_interval: {{ loki_config_distributor.rate_store.stream_rate_update_interval }}
+    {% endif %}
+    {% if loki_config_distributor.rate_store.max_request_parallelism is defined and
+          loki_config_distributor.rate_store.max_request_parallelism | string | length > 0 %}
+    ingester_request_timeout: {{ loki_config_distributor.rate_store.ingester_request_timeout }}
+    {% endif %}
+  {% endif %}
+#}
+{#
   {{ loki_config_distributor | to_nice_yaml(indent=2) | indent(2, False) }}
+#}
 {% endif %}
+{#
+distributor:
+  # Configures the distributors ring, used when the "global" ingestion rate
+  # strategy is enabled.
+  ring:
+    kvstore:
+      # The backend storage to use for the ring. Supported values are
+      # consul, etcd, inmemory, memberlist
+      # CLI flag: -distributor.ring.store
+      store: <string>
+
+      # The prefix for the keys in the store. Should end with a /.
+      # CLI flag: -distributor.ring.prefix
+      [prefix: <string> | default = "collectors/"]
+
+      # Configuration for a Consul client. Only applies if store is "consul"
+      # The CLI flags prefix for this block config is: distributor.ring
+      [consul: <consul_config>]
+
+      # Configuration for an ETCD v3 client. Only applies if store is "etcd"
+      # The CLI flags prefix for this block config is: distributor.ring
+      [etcd: <etcd_config>]
+
+      # The heartbeat timeout after which ingesters are skipped for
+      # reading and writing.
+      # CLI flag: -distributor.ring.heartbeat-timeout
+      [heartbeat_timeout: <duration> | default = 1m]
+
+    rate_store:
+      # The max number of concurrent requests to make to ingester stream apis
+      # CLI flag: -distributor.rate-store.max-request-parallelism
+      [max_request_parallelism: <int> | default = 200]
+      # The interval on which distributors will update current stream rates
+      # from ingesters
+      # CLI flag: -distributor.rate-store.stream-rate-update-interval
+      [stream_rate_update_interval: <duration> | default = 1s]
+      # Timeout for communication between distributors and ingesters when updating
+      # rates
+      # CLI flag: -distributor.rate-store.ingester-request-timeout
+      [ingester_request_timeout: <duration> | default = 1s]
+#}

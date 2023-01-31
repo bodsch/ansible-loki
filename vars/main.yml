@@ -18,24 +18,109 @@ loki_requirements:
   - iproute2
 
 loki_defaults_config_server:
+  # Supported values [debug, info, warn, error]
+  log_level: "info"
+  register_instrumentation: true
+  graceful_shutdown_timeout: 30s
   http_listen_address: "127.0.0.1"
   http_listen_port: 3100
-  # grpc_listen_address: "127.0.0.1"
-  # [debug, info, warn, error] (default info)
-  log_level: info
-
-loki_defaults_config_common: {}
+  http_path_prefix: ""
+  http_server_read_timeout: 30s
+  http_server_write_timeout: 30s
+  http_server_idle_timeout: 120s
+  http_tls_config:
+    cert_file: ""
+    key_file: ""
+    client_auth_type: ""
+    client_ca_file: ""
+    tls_cipher_suites: ""
+    tls_min_version: ""
+  grpc_listen_address: ""
+  grpc_listen_port: 9095
+  grpc_server_max_recv_msg_size: 4194304
+  grpc_server_max_send_msg_size: 4194304
+  grpc_server_max_concurrent_streams: 100
+  grpc_tls_config:
+    cert_file: ""
+    key_file: ""
+    client_auth_type: ""
+    client_ca_file: ""
+    tls_cipher_suites: ""
+    tls_min_version: ""
 
 loki_defaults_config_distributor:
   ring:
+    instance_id: "{{ ansible_hostname }}"
+    instance_interface_names:
+      - lo
+      - eth0
+      - eth1
+    instance_port: 0
+    instance_addr: "127.0.0.1"
+    heartbeat_timeout: 1m0s
+    heartbeat_period: 15s
     kvstore:
+      # Supported values are
+      #   consul, etcd, inmemory, memberlist
       store: inmemory
+      prefix: "collectors/"
+      consul:
+        enabled: false
+        host: localhost:8500
+        acl_token: ""
+        http_client_timeout: 20s
+        cas_retry_delay: 1s
+        watch_burst_size: 1
+        watch_rate_limit: 1
+        consistent_reads: false
+      etcd:
+        enabled: false
+        endpoints: []
+        password: ""
+        username: ""
+        tls_min_version: ""
+        tls_cipher_suites: ""
+        tls_insecure_skip_verify: false
+        tls_server_name: ""
+        tls_ca_path: ""
+        tls_key_path: ""
+        tls_cert_path: ""
+        tls_enabled: false
+        max_retries: 10
+        dial_timeout: 10s
+      multi:
+        mirror_enabled: false
+        mirror_timeout: 2s
+        secondary: ""
+        primary: ""
 
-loki_defaults_config_querier: {}
+  rate_store:
+    max_request_parallelism: 200
+    stream_rate_update_interval: 1s
+    ingester_request_timeout: 1s
+
+loki_defaults_config_common: {}
+
+loki_defaults_config_querier:
+  query_timeout: 0s
+  multi_tenant_queries_enabled: false
+  query_ingester_only: false
+  query_store_only: false
+  max_concurrent: 10
+  engine:
+    max_look_back_period: 30s
+    timeout: 5m
+  query_ingesters_within: 3h
+  tail_max_duration: 1h
 
 loki_defaults_config_query_range: {}
 
-loki_defaults_config_query_scheduler: {}
+loki_defaults_config_query_scheduler:
+  max_outstanding_requests_per_tenant: 100
+  querier_forget_delay: 0
+  grpc_client_config: ""      # <grpc_client_config>
+  use_scheduler_ring: false
+  scheduler_ring: ""          # <ring>
 
 loki_defaults_config_ingester:
   lifecycler:
@@ -144,6 +229,5 @@ go_arch_map:
 go_arch: "{{ go_arch_map[ansible_architecture] | default(ansible_architecture) }}"
 
 systemd_lib_directory: /lib/systemd/system
-
 
 ...

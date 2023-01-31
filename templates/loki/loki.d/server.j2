@@ -1,5 +1,118 @@
 
 {% if loki_config_server | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#server #}
+  {% set _log_level = "info" %}
+  {% if loki_config_server.log_level is defined and
+        loki_config_server.log_level in ["debug", "info", "warn", "error"] %}
+    {% set _log_level = loki_config_server.log_level %}
+  {% endif %}
 server:
-  {{ loki_config_server | to_nice_yaml(indent=2) | indent(2, False) }}
+  log_level: {{ _log_level }}
+  {% if loki_config_server.register_instrumentation is defined %}
+  register_instrumentation: {{ loki_config_server.register_instrumentation | bool | ternary('true', 'false') }}
+  {% endif %}
+  {% if loki_config_server.graceful_shutdown_timeout is defined and
+        loki_config_server.graceful_shutdown_timeout | string | length > 0 %}
+  graceful_shutdown_timeout: {{ loki_config_server.graceful_shutdown_timeout }}
+  {% endif %}
+  {# http #}
+  {% if loki_config_server.http_listen_port is defined and
+        loki_config_server.http_listen_port | string | length > 0 %}
+  http_listen_address: {{ loki_config_server.http_listen_port }}
+  {% endif %}
+  {% if loki_config_server.http_path_prefix is defined and
+        loki_config_server.http_path_prefix | string | length > 0 %}
+  http_path_prefix: {{ loki_config_server.http_path_prefix }}
+  {% endif %}
+  {% if loki_config_server.http_server_read_timeout is defined and
+        loki_config_server.http_server_read_timeout | string | length > 0 %}
+  http_server_read_timeout: {{ loki_config_server.http_server_read_timeout }}
+  {% endif %}
+  {% if loki_config_server.http_server_write_timeout is defined and
+        loki_config_server.http_server_write_timeout | string | length > 0 %}
+  http_server_write_timeout: {{ loki_config_server.http_server_write_timeout }}
+  {% endif %}
+  {% if loki_config_server.http_server_idle_timeout is defined and
+        loki_config_server.http_server_idle_timeout | string | length > 0 %}
+  http_server_idle_timeout: {{ loki_config_server.http_server_idle_timeout }}
+  {% endif %}
+  {% if loki_config_server.http_tls_config is defined and
+        loki_config_server.http_tls_config | count > 0 and
+        loki_config_server.http_tls_config | loki_tls_certificates %}
+  http_tls_config:
+    {% if loki_config_server.http_tls_config.cert_file is defined and
+          loki_config_server.http_tls_config.cert_file | string | length > 0 %}
+    cert_file: {{ loki_config_server.http_tls_config.cert_file }}
+    {% endif %}
+    {% if loki_config_server.http_tls_config.key_file is defined and
+          loki_config_server.http_tls_config.key_file | string | length > 0 %}
+    key_file: {{ loki_config_server.http_tls_config.key_file }}
+    {% endif %}
+    {% if loki_config_server.http_tls_config.client_auth_type is defined and
+          loki_config_server.http_tls_config.client_auth_type | string | length > 0 %}
+    client_auth_type: {{ loki_config_server.http_tls_config.client_auth_type }}
+    {% endif %}
+    {% if loki_config_server.http_tls_config.client_ca_file is defined and
+          loki_config_server.http_tls_config.client_ca_file | string | length > 0 %}
+    client_ca_file: {{ loki_config_server.http_tls_config.client_ca_file }}
+    {% endif %}
+    {% if loki_config_server.http_tls_config.tls_cipher_suites is defined and
+          loki_config_server.http_tls_config.tls_cipher_suites | string | length > 0 %}
+    tls_cipher_suites: {{ loki_config_server.http_tls_config.tls_cipher_suites }}
+    {% endif %}
+    {% if loki_config_server.http_tls_config.tls_min_version is defined and
+          loki_config_server.http_tls_config.tls_min_version | string | length > 0 %}
+    tls_min_version: {{ loki_config_server.http_tls_config.tls_min_version }}
+    {% endif %}
+  {% endif %}
+  {# grpc #}
+  {% if loki_config_server.grpc_listen_address is defined and
+        loki_config_server.grpc_listen_address | string | length > 0 %}
+  grpc_listen_address: {{ loki_config_server.grpc_listen_address }}
+  {% endif %}
+  {% if loki_config_server.grpc_listen_port is defined and
+        loki_config_server.grpc_listen_port | string | length > 0 %}
+  grpc_listen_port: {{ loki_config_server.grpc_listen_port }}
+  {% endif %}
+  {% if loki_config_server.grpc_server_max_recv_msg_size is defined and
+        loki_config_server.grpc_server_max_recv_msg_size | string | length > 0 %}
+  grpc_server_max_recv_msg_size: {{ loki_config_server.grpc_server_max_recv_msg_size }}
+  {% endif %}
+  {% if loki_config_server.grpc_server_max_send_msg_size is defined and
+        loki_config_server.grpc_server_max_send_msg_size | string | length > 0 %}
+  grpc_server_max_send_msg_size: {{ loki_config_server.grpc_server_max_send_msg_size }}
+  {% endif %}
+  {% if loki_config_server.grpc_server_max_concurrent_streams is defined and
+        loki_config_server.grpc_server_max_concurrent_streams | string | length > 0 %}
+  grpc_server_max_concurrent_streams: {{ loki_config_server.grpc_server_max_concurrent_streams }}
+  {% endif %}
+  {% if loki_config_server.grpc_tls_config is defined and
+        loki_config_server.grpc_tls_config | count > 0 and
+        loki_config_server.grpc_tls_config | loki_tls_certificates %}
+  grpc_tls_config:
+    {% if loki_config_server.grpc_tls_config.cert_file is defined and
+          loki_config_server.grpc_tls_config.cert_file | string | length > 0 %}
+    cert_file: {{ loki_config_server.grpc_tls_config.cert_file }}
+    {% endif %}
+    {% if loki_config_server.grpc_tls_config.key_file is defined and
+          loki_config_server.grpc_tls_config.key_file | string | length > 0 %}
+    key_file: {{ loki_config_server.grpc_tls_config.key_file }}
+    {% endif %}
+    {% if loki_config_server.grpc_tls_config.client_auth_type is defined and
+          loki_config_server.grpc_tls_config.client_auth_type | string | length > 0 %}
+    client_auth_type: {{ loki_config_server.grpc_tls_config.client_auth_type }}
+    {% endif %}
+    {% if loki_config_server.grpc_tls_config.client_ca_file is defined and
+          loki_config_server.grpc_tls_config.client_ca_file | string | length > 0 %}
+    client_ca_file: {{ loki_config_server.grpc_tls_config.client_ca_file }}
+    {% endif %}
+    {% if loki_config_server.grpc_tls_config.tls_cipher_suites is defined and
+          loki_config_server.grpc_tls_config.tls_cipher_suites | string | length > 0 %}
+    tls_cipher_suites: {{ loki_config_server.grpc_tls_config.tls_cipher_suites }}
+    {% endif %}
+    {% if loki_config_server.grpc_tls_config.tls_min_version is defined and
+          loki_config_server.grpc_tls_config.tls_min_version | string | length > 0 %}
+    tls_min_version: {{ loki_config_server.grpc_tls_config.tls_min_version }}
+    {% endif %}
+  {% endif %}
 {% endif %}

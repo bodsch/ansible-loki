@@ -1,5 +1,26 @@
 
+{% import 'jinja_macros.j2' as tpl with context %}
 {% if loki_config_query_scheduler | default({}) | count > 0 %}
 query_scheduler:
-  {{ loki_config_query_scheduler | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_query_scheduler.querier_forget_delay is defined and
+        loki_config_query_scheduler.querier_forget_delay | string | length > 0 %}
+  querier_forget_delay: {{ loki_config_query_scheduler.querier_forget_delay }}
+  {% endif %}
+  {% if loki_config_query_scheduler.max_outstanding_requests_per_tenant is defined and
+        loki_config_query_scheduler.max_outstanding_requests_per_tenant | string | length > 0 %}
+  max_outstanding_requests_per_tenant: {{ loki_config_query_scheduler.max_outstanding_requests_per_tenant }}
+  {% endif %}
+  {% if loki_config_query_scheduler.use_scheduler_ring is defined %}
+  use_scheduler_ring: {{ loki_config_query_scheduler.use_scheduler_ring | bool | ternary('true', 'false') }}
+  {% endif %}
+  {% if loki_config_query_scheduler.scheduler_ring is defined and
+        loki_config_query_scheduler.scheduler_ring | count > 0 %}
+  scheduler_ring:
+    {{ tpl.loki_rings(loki_config_query_scheduler.scheduler_ring) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_query_scheduler.grpc_client_config is defined and
+        loki_config_query_scheduler.grpc_client_config | count > 0 %}
+  grpc_client_config:
+    {{ tpl.loki_grpc_client_config(loki_config_query_scheduler.grpc_client_config) | indent(4, False) }}
+  {% endif %}
 {% endif %}

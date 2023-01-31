@@ -1,6 +1,10 @@
 
 # `loki_config_schema`
 
+The schema_config block configures schemas from given dates.
+
+The period_config block configures what index schemas should be used for from specific time periods.
+
 [upstream configuration](https://grafana.com/docs/loki/latest/configuration/#schema_config)
 
 ## defaults

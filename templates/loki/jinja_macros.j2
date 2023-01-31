@@ -1,0 +1,333 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+{#
+
+#}
+{% set print = self %}
+
+{%- macro loki_rings(data, i = 6) -%}
+{#
+# The key-value store used to share the hash ring across multiple instances.
+kvstore:
+  [store: <string> | default = "memberlist"]
+  [prefix: <string> | default = "collectors/"]
+  [consul: <consul_config>]
+  [etcd: <etcd_config>]
+  multi:
+    [primary: <string> | default = ""]
+    [secondary: <string> | default = ""]
+    [mirror_enabled: <boolean> | default = false]
+    [mirror_timeout: <duration> | default = 2s]
+#}
+{% if data.heartbeat_period is defined and
+      data.heartbeat_period | string | length > 0 %}
+heartbeat_period: {{ data.heartbeat_period | indent(i) }}
+{% endif %}
+{% if data.heartbeat_timeout is defined and
+      data.heartbeat_timeout | string | length > 0 %}
+heartbeat_timeout: {{ data.heartbeat_timeout | indent(i) }}
+{% endif %}
+{% if data.tokens_file_path is defined and
+      data.tokens_file_path | string | length > 0 %}
+tokens_file_path: {{ data.tokens_file_path | indent(i) }}
+{% endif %}
+{% if data.zone_awareness_enabled is defined %}
+zone_awareness_enabled: {{ data.zone_awareness_enabled | bool | ternary('true','false') | indent(i) }}
+{% endif %}
+{% if data.instance_interface_names is defined and
+      data.instance_interface_names | string | length > 0 %}
+instance_interface_names: {{ data.instance_interface_names }}
+{% endif %}
+{% if data.instance_addr is defined and
+      data.instance_addr | string | length > 0 %}
+instance_addr: {{ data.instance_addr }}
+{% endif %}
+{% if data.instance_port is defined and
+      data.instance_port | string | length > 0 %}
+instance_port: {{ data.instance_port }}
+{% endif %}
+{% if data.instance_id is defined and
+      data.instance_id | string | length > 0 %}
+instance_id: {{ data.instance_id }}
+{% endif %}
+{% if data.instance_availability_zone is defined and
+      data.instance_availability_zone | string | length > 0 %}
+instance_availability_zone: {{ data.instance_availability_zone }}
+{% endif %}
+{% if data.kvstore is defined and
+      data.kvstore | count > 0 %}
+  {% set _kv_store = "inmemory" %}
+  {% if data.kvstore.store is defined and
+        data.kvstore.store in ["consul", "etcd", "inmemory", "memberlist"] %}
+    {% set _kv_store = data.kvstore.store %}
+  {% endif %}
+kvstore:
+  store: {{ _kv_store }}
+  {% if data.kvstore.prefix is defined and
+        data.kvstore.prefix | string | length > 0 %}
+  prefix: {{ data.kvstore.prefix }}
+  {% endif %}
+  {% if _kv_store == "consul" %}
+  consul:
+    {{ loki_consul(data.kvstore.consul | default({})) | indent(4, False) }}
+  {% endif %}
+  {% if _kv_store == "etcd" %}
+  etcd:
+    {{ loki_etcd(data.kvstore.etcd | default({})) | indent(4, False) }}
+  {% endif %}
+  {% if data.kvstore.multi is defined and
+        data.kvstore.multi | count > 0 %}
+  multi:
+    {{ loki_multi(data.kvstore.multi | default({})) | indent(4, False) }}
+  {% endif %}
+{% endif %}
+{%- endmacro -%}
+
+{%- macro loki_consul(data, i = 6) -%}
+{# .... #}
+{% if not data %}
+# not consul data defined
+{% else %}
+host: {{ data.host | default("localhost:8500") }}
+  {% if data.acl_token is defined and
+        data.acl_token | string | length > 0 %}
+acl_token: {{ data.acl_token }}
+  {% endif %}
+http_client_timeout: {{ data.http_client_timeout | default('20s') }}
+consistent_reads: {{ data.consistent_reads | default('true') | bool | ternary('true','false') }}
+{% endif %}
+
+{# .... #}
+{%- endmacro -%}
+
+{%- macro loki_etcd(data, i = 6) -%}
+{# .... #}
+{% if not data %}
+# not etcd data defined
+{% else %}
+  {% if data.endpoints is defined and
+        data.endpoints | count > 0 %}
+endpoints: [ {{ data.endpoints | join(',') }} ]
+    {% if data.endpoints.dial_timeout is defined and
+          data.endpoints.dial_timeout | string | length > 0 %}
+dial_timeout: {{ data.endpoints.dial_timeout }}
+    {% endif %}
+    {% if data.endpoints.max_retries is defined and
+          data.endpoints.max_retries | string | length > 0 %}
+max_retries: {{ data.endpoints.max_retries }}
+    {% endif %}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{%- macro loki_multi(data, i = 6) -%}
+{# .... #}
+{% if not data %}
+# not multi data defined
+{% else %}
+  {% if data.primary is defined and
+        data.primary | string | length > 0 %}
+primary: {{ data.primary }}
+  {% endif %}
+  {% if data.secondary is defined and
+        data.secondary | string | length > 0 %}
+secondary: {{ data.secondary }}
+  {% endif %}
+  {% if data.mirror_enabled is defined %}
+mirror_enabled: {{ data.mirror_enabled | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.mirror_timeout is defined and
+        data.mirror_timeout | string | length > 0 %}
+mirror_timeout: {{ data.mirror_timeout }}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{%- macro loki_grpc_client_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not grpc_client_config data defined
+{% else %}
+  {% if data.max_recv_msg_size is defined and
+         data.max_recv_msg_size | string | length > 0 %}
+max_recv_msg_size: {{ data.max_recv_msg_size }}
+  {% endif %}
+  {% if data.max_send_msg_size is defined and
+         data.max_send_msg_size | string | length > 0 %}
+max_send_msg_size: {{ data.max_send_msg_size }}
+  {% endif %}
+  {% if data.grpc_compression is defined and
+         data.grpc_compression in ["gzip", "snappy"] %}
+grpc_compression: {{ data.grpc_compression }}
+  {% endif %}
+  {% if data.rate_limit is defined and
+         data.rate_limit | string | length > 0 %}
+rate_limit: {{ data.rate_limit }}
+  {% endif %}
+  {% if data.rate_limit_burst is defined and
+         data.rate_limit_burst | string | length > 0 %}
+rate_limit_burst: {{ data.rate_limit_burst }}
+  {% endif %}
+  {% if data.backoff_on_ratelimits is defined %}
+backoff_on_ratelimits: {{ data.backoff_on_ratelimits | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.backoff_config is defined and
+         data.backoff_config | count > 0 %}
+backoff_config:
+    {% if data.backoff_config.min_period is defined and
+          data.backoff_config.min_period | string | length > 0 %}
+    {% endif %}
+  min_period: {{ data.backoff_config.min_period }}
+    {% if data.backoff_config.max_period is defined and
+          data.backoff_config.max_period | string | length > 0 %}
+  max_period: {{ data.backoff_config.max_period }}
+    {% endif %}
+    {% if data.backoff_config.max_retries is defined and
+          data.backoff_config.max_retries | string | length > 0 %}
+  max_retries: {{ data.backoff_config.max_retries }}
+    {% endif %}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#query_range #}
+{%- macro loki_query_range(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not query_range data defined
+{% else %}
+  {% if data.split_queries_by_day is defined %}
+split_queries_by_day: {{ data.split_queries_by_day | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.align_queries_with_step is defined %}
+align_queries_with_step: {{ data.align_queries_with_step | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.max_retries is defined and
+        data.max_retries | string | length > 0%}
+max_retries: {{ data.max_retries }}
+  {% endif %}
+  {% if data.parallelise_shardable_queries is defined %}
+parallelise_shardable_queries: {{ data.parallelise_shardable_queries | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.cache_results is defined %}
+cache_results: {{ data.cache_results | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.results_cache is defined %}
+results_cache:
+  cache: {{ loki_cache(data.results_cache.cache | default({})) | indent(2, False) }}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{%- macro loki_cache(data, i = 6) -%}
+{# .... #}
+{% if not data %}
+# not cache data defined
+{% else %}
+
+  {% if data.default_validity is defined and
+        data.default_validity | string | length > 0 %}
+  default_validity: {{ data.default_validity }}
+  {% endif %}
+  {% if data.enable_fifocache is defined %}
+  # NOTE: `fifocache` is deprecated. Use `embedded-cache` instead.
+  enable_fifocache: {{ data.enable_fifocache | bool | ternary('true','false') }}
+    {% if data.enable_fifocache | bool %}
+  fifocache:
+    max_size_bytes: {{ data.fifocache.max_size_bytes | default("1GB") }}
+    max_size_items: {{ data.fifocache.max_size_items | default('0') }}
+      {% if data.fifocache.validity is defined and
+            data.fifocache.validity | string | length > 0 %}
+    # Deprecated: Use `fifocache.ttl`.
+    validity: {{ data.fifocache.validity }}
+      {% endif %}
+    ttl: {{ data.fifocache.ttl | default('1h') }}
+    {% endif %}
+  {% endif %}
+  {% if data.embedded_cache is defined and
+        data.embedded_cache | count > 0 and
+        data.embedded_cache.enabled | default('false') %}
+  embedded_cache:
+    enabled: {{ data.embedded_cache.enabled | default('false') | bool | ternary('true','false') }}
+    max_size_mb: {{ data.embedded_cache.max_size_mb | default('100') }}
+    ttl: {{ data.embedded_cache.ttl | default('1h') }}
+  {% endif %}
+  {# Configures memcached settings. #}
+  {% if data.memcached is defined  and
+        data.memcached | count > 0 %}
+  memcached:
+    {% if data.memcached.expiration is defined and
+          data.memcached.expiration | string | length > 0 %}
+    expiration: {{ data.memcached.expiration }}
+    {% endif %}
+    batch_size: {{ data.memcached.batch_size | default('1024') }}
+    parallelism: {{ data.memcached.parallelism | default('100') }}
+    {# Configures the background cache when memcached is used. #}
+    {% if data.background is defined and
+          data.background | count > 0  %}
+  background:
+    writeback_goroutines: {{ data.background.writeback_goroutines | default('10') }}
+    writeback_buffer: {{ data.background.writeback_buffer | default('10000') }}
+    {% endif %}
+  {% endif %}
+  {# Configures how to connect to one or more memcached servers #}
+  {% if data.memcached_client is defined and
+        data.memcached_client | count > 0 %}
+  memcached_client:
+    {% if data.memcached_client.host is defined and
+          data.memcached_client.host | string | length > 0 %}
+    host: {{ data.memcached_client.host }}
+    {% endif %}
+    service: {{ data.memcached_client.service | default('memcached') }}
+    {% if data.memcached_client.addresses is defined and
+          data.memcached_client.addresses | count > 0 %}
+    addresses: {{ data.memcached_client.addresses | join(',') }}
+    {% endif %}
+    timeout: {{ data.memcached_client.timeout | default('100ms') }}
+    max_idle_conns: {{ data.memcached_client.max_idle_conns | default('16') }}
+    update_interval: {{ data.memcached_client.update_interval | default('1m') }}
+    consistent_hash: {{ data.memcached_client.consistent_hash | default('true') | bool | ternary('true','false') }}
+    circuit_breaker_consecutive_failures: {{ data.memcached_client.circuit_breaker_consecutive_failures | default('10') }}
+    circuit_breaker_timeout: {{ data.memcached_client.circuit_breaker_timeout | default('10s') }}
+    circuit_breaker_interval: {{ data.memcached_client.circuit_breaker_interval | default('10s') }}
+    max_item_size: {{ data.memcached_client.circuit_breaker_interval | default('0') }}
+  {% endif %}
+  {# Redis Server or Cluster configuration endpoint to use for caching #}
+  {% if data.redis is defined and
+        data.redis | count > 0 %}
+  redis:
+    {% if data.redis.endpoint is defined and
+          data.redis.endpoint | string | length > 0 %}
+    endpoint: {{ data.redis.endpoint }}
+    {% endif %}
+    {% if data.redis.master_name is defined and
+          data.redis.master_name | string | length > 0 %}
+    master_name: {{ data.redis.master_name }}
+    {% endif %}
+    timeout: {{ data.redis.timeout | default('500ms') }}
+    expiration: {{ data.redis.expiration | default('0s') }}
+    db: {{ data.redis.db | default('0') }}
+    pool_size: {{ data.redis.pool_size | default('0') }}
+    {% if data.redis.username is defined and
+          data.redis.username | string | length > 0 %}
+    username: {{ data.redis.username }}
+    {% endif %}
+    {% if data.redis.password is defined and
+          data.redis.password | string | length > 0 %}
+    password: {{ data.redis.password }}
+    {% endif %}
+    {% if data.redis.tls_enabled is defined and
+          data.redis.tls_enabled %}
+    tls_enabled: true
+    tls_insecure_skip_verify: {{ data.redis.tls_insecure_skip_verify | default('false') | bool | ternary('true','false') }}
+    {% endif %}
+    idle_timeout: {{ data.redis.idle_timeout | default('0s') }}
+    max_connection_age: {{ data.redis.max_connection_age | default('0s') }}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+

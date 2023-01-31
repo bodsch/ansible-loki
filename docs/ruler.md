@@ -1,6 +1,8 @@
 
 # `loki_config_ruler`
 
+The ruler block configures the Loki ruler.
+
 [upstream configuration](https://grafana.com/docs/loki/latest/configuration/#ruler_config)
 
 ## defaults
@@ -15,6 +17,8 @@ loki_config_ruler:
   # alertmanager_url: http://localhost
   ring:
     kvstore:
+      # Backend storage to use for the ring. 
+      #   Supported values are: consul, etcd, inmemory, memberlist, multi.
       store: inmemory
   enable_api: true
 ```

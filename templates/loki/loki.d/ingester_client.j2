@@ -3,3 +3,30 @@
 ingester_client:
   {{ loki_config_ingester_client | to_nice_yaml(indent=2) | indent(2, False) }}
 {% endif %}
+{#
+# Configures how connections are pooled
+pool_config:
+  # Whether or not to do health checks.
+  # CLI flag: -distributor.health-check-ingesters
+  [health_check_ingesters: <boolean> | default = false]
+
+  # How frequently to clean up clients for servers that have gone away after
+  # a health check.
+  # CLI flag: -distributor.client-cleanup-period
+  [client_cleanup_period: <duration> | default = 15s]
+
+  # How quickly a dead client will be removed after it has been detected
+  # to disappear. Set this to a value to allow time for a secondary
+  # health check to recover the missing client.
+  # CLI flag: -ingester.client.healthcheck-timeout
+  [remote_timeout: <duration> | default = 1s]
+
+# The remote request timeout on the client side.
+# CLI flag: -ingester.client.timeout
+[remote_timeout: <duration> | default = 5s]
+
+# Configures how the gRPC connection to ingesters work as a client
+# The CLI flags prefix for this block config is: ingester.client
+[grpc_client_config: <grpc_client_config>]
+
+#}
