@@ -1,5 +1,29 @@
 
+{% import 'jinja_macros.j2' as tpl with context -%}
 {% if loki_config_common | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#common #}
 common:
-  {{ loki_config_common | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% set valid_keys = [
+    "path_prefix","replication_factor",
+    "persist_tokens", "instance_addr",
+    "instance_interface_names", "compactor_address",
+    "compactor_grpc_address" ] -%}
+  {% if loki_config_common.storage is defined and
+        loki_config_common.storage | count > 0 %}
+  storage:
+    {{ tpl.makro_storage(loki_config_common.storage) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_common.ring is defined and
+        loki_config_common.ring | count > 0 %}
+  ring:
+    {{ tpl.makro_rings(loki_config_common.ring) | indent(4, False) }}
+  {% endif %}
+  {% for key, v in loki_config_common.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% endif %}

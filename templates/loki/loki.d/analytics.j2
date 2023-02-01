@@ -1,5 +1,6 @@
 
 {% if loki_main_version is version_compare('2.5', '>=' ) %}
+  {# https://grafana.com/docs/loki/latest/configuration/#analytics #}
 analytics:
   reporting_enabled: {{ loki_config_analytics.reporting_enabled | bool | ternary('true', 'false') }}
 {% endif %}

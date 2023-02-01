@@ -1,6 +1,26 @@
 
+{% import 'jinja_macros.j2' as tpl with context -%}
 {% if loki_config_table_manager | default({}) | count > 0 %}
-# loki 2.3
+  {% set valid_keys = [
+    "throughput_updates_disabled","retention_deletes_enabled","retention_period","poll_interval","creation_grace_period"
+  ] -%}
 table_manager:
-  {{ loki_config_table_manager | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% for key, v in loki_config_table_manager.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_table_manager.index_tables_provisioning is defined and
+        loki_config_table_manager.index_tables_provisioning | count > 0 %}
+  index_tables_provisioning:
+    {{ tpl.makro_provision_config(loki_config_table_manager.index_tables_provisioning) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_table_manager.chunk_tables_provisioning is defined and
+        loki_config_table_manager.chunk_tables_provisioning | count > 0 %}
+  chunk_tables_provisioning:
+    {{ tpl.makro_provision_config(loki_config_table_manager.chunk_tables_provisioning) | indent(4, False) }}
+  {% endif %}
 {% endif %}

@@ -1,5 +1,74 @@
 
 {% if loki_config_limits | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#limits_config #}
+  {# TODO #}
 limits_config:
   {{ loki_config_limits | to_nice_yaml(indent=2) | indent(2, False) }}
 {% endif %}
+{#
+[ingestion_rate_strategy: <string> | default = "global"]
+[ingestion_rate_mb: <float> | default = 4]
+[ingestion_burst_size_mb: <int> | default = 6]
+[max_label_name_length: <int> | default = 1024]
+[max_label_value_length: <int> | default = 2048]
+[max_label_names_per_series: <int> | default = 30]
+[reject_old_samples: <boolean> | default = true]
+[reject_old_samples_max_age: <duration> | default = 168h]
+[creation_grace_period: <duration> | default = 10m]
+[enforce_metric_name: <boolean> | default = true]
+[max_line_size: <string> | default = 0 ]
+[max_line_size_truncate: <boolean> | default = false ]
+[increment_duplicate_timestamp: <boolean> | default = false ]
+[max_entries_limit_per_query: <int> | default = 5000 ]
+[max_streams_per_user: <int> | default 0]
+[max_global_streams_per_user: <int> | default = 5000]
+[unordered_writes: <boolean> | default = true]
+[max_chunks_per_query: <int> | default = 2000000]
+[max_query_length: <duration> | default = 721h]
+[max_query_parallelism: <int> | default = 32]
+[max_query_series: <int> | default = 500]
+[cardinality_limit: <int> | default = 100000]
+[max_streams_matchers_per_query: <int> | default = 1000]
+[max_concurrent_tail_requests: <int> | default = 10]
+[ruler_evaluation_delay_duration: <duration> | default = 0s]
+[ruler_max_rules_per_rule_group: <int> | default = 0]
+[ruler_max_rule_groups_per_tenant: <int> | default = 0]
+[ruler_alertmanager_config: <alertmanager_config>]
+[retention_period: <duration> | default = 744h]
+[retention_stream: <array> | default = none]
+[per_tenant_override_config: <string>]
+[per_tenant_override_period: <duration> | default = 10s]
+[max_cache_freshness_per_query: <duration> | default = 1m]
+[max_queriers_per_tenant: <int> | default = 0]
+[per_stream_rate_limit: <string|int> | default = "3MB"]
+[per_stream_rate_limit_burst: <string|int> | default = "15MB"]
+shard_streams:
+  [enabled: <boolean> | default = false]
+  [logging_enabled: <boolean> | default = false]
+  [desired_rate: <string> | default = 3MB]
+[max_query_lookback: <duration> | default = 0]
+[ruler_remote_write_disabled: <boolean> | default = false]
+[ruler_remote_write_url: <string>]
+[ruler_remote_write_timeout: <duration>]
+[ruler_remote_write_headers: <headers>]
+[ruler_remote_write_relabel_configs: <relabel_config>]
+[ruler_remote_write_queue_capacity: <int>]
+[ruler_remote_write_queue_min_shards: <int>]
+[ruler_remote_write_queue_max_shards: <int>]
+[ruler_remote_write_queue_max_samples_per_send: <int>]
+[ruler_remote_write_queue_batch_send_deadline: <duration>]
+[ruler_remote_write_queue_min_backoff: <duration>]
+[ruler_remote_write_queue_max_backoff: <duration>]
+# Deprecated: Use `ruler_remote_write_config` instead.
+[ruler_remote_write_queue_retry_on_ratelimit: <boolean>]
+# Deprecated: Use `ruler_remote_write_config` instead.
+[ruler_remote_write_sigv4_config:  <sigv4_config>]
+ruler_remote_write_config:
+  [<string>: <remote_write_client_config>]
+[min_sharding_lookback: <duration> | default = 0s]
+[split_queries_by_interval: <duration> | default = 30m]
+# Deprecated: Use deletion_mode per tenant configuration instead.
+[allow_deletes: <boolean> | default = false]
+# Can be one of "disabled", "filter-only", or "filter-and-delete".
+[deletion_mode: <string> | default = "filter-and-delete"]
+#}

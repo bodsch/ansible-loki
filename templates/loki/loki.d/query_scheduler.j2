@@ -1,5 +1,5 @@
 
-{% import 'jinja_macros.j2' as tpl with context %}
+{% import 'jinja_macros.j2' as tpl with context -%}
 {% if loki_config_query_scheduler | default({}) | count > 0 %}
 query_scheduler:
   {% if loki_config_query_scheduler.querier_forget_delay is defined and
@@ -16,11 +16,11 @@ query_scheduler:
   {% if loki_config_query_scheduler.scheduler_ring is defined and
         loki_config_query_scheduler.scheduler_ring | count > 0 %}
   scheduler_ring:
-    {{ tpl.loki_rings(loki_config_query_scheduler.scheduler_ring) | indent(4, False) }}
+    {{ tpl.makro_rings(loki_config_query_scheduler.scheduler_ring) | indent(4, False) }}
   {% endif %}
   {% if loki_config_query_scheduler.grpc_client_config is defined and
         loki_config_query_scheduler.grpc_client_config | count > 0 %}
   grpc_client_config:
-    {{ tpl.loki_grpc_client_config(loki_config_query_scheduler.grpc_client_config) | indent(4, False) }}
+    {{ tpl.makro_grpc_client_config(loki_config_query_scheduler.grpc_client_config) | indent(4, False) }}
   {% endif %}
 {% endif %}

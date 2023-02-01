@@ -18,6 +18,7 @@ class FilterModule(object):
         return {
             'loki_checksum': self.checksum,
             'loki_tls_certificates': self.tls_certificates,
+            'loki_value': self.value,
         }
 
     def checksum(self, data, program, os, arch):
@@ -49,3 +50,21 @@ class FilterModule(object):
                 return True
 
         return False
+
+    def value(self, data):
+        """
+        """
+        result = None
+        display.v(f"value({data} {type(data)})")
+
+        if isinstance(data, bool):
+            result = 'true' if data else 'false'
+        elif isinstance(data, str):
+            if len(data) > 0:
+                result = data
+        elif isinstance(data, int):
+            result = data
+
+        display.v(f"= result: {result} {type(result)}")
+
+        return result

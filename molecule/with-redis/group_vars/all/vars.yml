@@ -67,11 +67,6 @@ loki_config_ingester:
         store: inmemory
       replication_factor: 3
 
-    # final_sleep: 10s
-  #wal:
-  #  enabled: true
-  #  flush_on_shutdown: true
-
 loki_config_limits:
   max_entries_limit_per_query: 0
   ingestion_rate_strategy: global
@@ -112,6 +107,32 @@ loki_config_chunk_store:
       endpoint: "redis:6379"
       # db: 10
       # max_connection_age: 10s
+
+loki_config_schema:
+  configs:
+    - from: "2020-10-24"
+      store: boltdb
+      object_store: filesystem
+      schema: v11
+      index:
+        prefix: index_
+        period: 168h
+        tags:
+          foo: bar
+          year: 2020
+      chunks:
+        prefix: index_
+        period: 168h
+      row_shards: 16
+
+loki_config_common:
+  storage:
+    filesystem:
+      rules_directory: "{{ loki_storage_dir }}/rules"
+      chunks_directory: "{{ loki_storage_dir }}/chunks"
+  #  azure:
+  #    max_retries: 10
+  #    account_key: ""
 
 loki_config_query_range:
   align_queries_with_step: true

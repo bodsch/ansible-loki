@@ -1,5 +1,5 @@
 
-{% import 'jinja_macros.j2' as tpl with context %}
+{% import 'jinja_macros.j2' as tpl with context -%}
 {% if loki_config_storage | default({}) | count > 0 %}
   {# https://grafana.com/docs/loki/latest/configuration/#storage_config #}
 storage_config:
@@ -17,18 +17,17 @@ storage_config:
   {% if loki_config_storage.index_queries_cache_config is defined and
         loki_config_storage.index_queries_cache_config | count > 0 %}
   index_queries_cache_config:
-    {{- tpl.loki_cache(loki_config_storage.index_queries_cache_config | default({})) | indent(2, False) }}
+    {{- tpl.makro_cache(loki_config_storage.index_queries_cache_config | default({})) | indent(2, False) -}}
   {% endif %}
   {% if loki_config_storage.aws is defined and
         loki_config_storage.aws | count > 0 %}
     {% set valid_keys = ["s3","s3forcepathstyle","bucketnames","endpoint","region","access_key_id","secret_access_key","insecure","sse_encryption"] %}
   aws:
-    {% for k, v in loki_config_storage.aws.items() %}
-      {% if k in valid_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_storage.aws.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}
@@ -116,31 +115,29 @@ storage_config:
         loki_config_storage.bigtable | count > 0 %}
     {% set valid_keys = ["project","instance"] %}
   bigtable:
-    {% for k, v in loki_config_storage.bigtable.items() %}
-      {% if k in valid_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_storage.bigtable.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}
     {% if loki_config_storage.bigtable.grpc_client_config is defined and
           loki_config_storage.bigtable.grpc_client_config | count > 0 %}
     grpc_client_config:
-      {{ tpl.loki_grpc_client_config(loki_config_storage.bigtable.grpc_client_config) | indent(6, False) }}
+      {{ tpl.makro_grpc_client_config(loki_config_storage.bigtable.grpc_client_config) | indent(6, False) }}
     {% endif %}
   {% endif %}
   {% if loki_config_storage.gcs is defined and
         loki_config_storage.gcs | count > 0 %}
     {% set valid_keys = ["bucket_name","chunk_buffer_size","request_timeout"] %}
   gcs:
-    {% for k, v in loki_config_storage.gcs.items() %}
-      {% if k in valid_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_storage.gcs.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}
@@ -157,12 +154,11 @@ storage_config:
     addresses: {{ loki_config_storage.cassandra.addresses }}
       {% endif %}
     {% endif %}
-    {% for k, v in loki_config_storage.cassandra.items() %}
-      {% if k in valid_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_storage.cassandra.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}
@@ -173,12 +169,11 @@ storage_config:
       "auth_url","username","user_domain_name","user_domain_id","user_id","password","domain_id","domain_name",
       "project_id","project_name","project_domain_id","project_domain_name","region_name","container_name"] %}
   swift:
-    {% for k, v in loki_config_storage.swift.items() %}
-      {% if k in valid_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_storage.swift.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}
@@ -192,12 +187,11 @@ storage_config:
         loki_config_storage.boltdb_shipper | count > 0 %}
     {% set valid_keys = ["active_index_directory","shared_store","cache_location","cache_ttl","resync_interval","query_ready_num_days"] %}
   boltdb_shipper:
-    {% for k, v in loki_config_storage.boltdb_shipper.items() %}
-      {% if k in valid_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_storage.boltdb_shipper.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}
@@ -214,7 +208,7 @@ storage_config:
       {% if loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config is defined and
             loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config | count > 0 %}
       grpc_client_config:
-        {{ tpl.loki_grpc_client_config(loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config) | indent(8, False) }}
+        {{ tpl.makro_grpc_client_config(loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config) | indent(8, False) }}
       {% endif %}
     {% endif %}
   {% endif %}

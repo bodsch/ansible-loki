@@ -99,7 +99,11 @@ loki_defaults_config_distributor:
     stream_rate_update_interval: 1s
     ingester_request_timeout: 1s
 
-loki_defaults_config_common: {}
+loki_defaults_config_common:
+  storage:
+    filesystem:
+      rules_directory: "{{ loki_storage_dir }}/rules"
+      chunks_directory: "{{ loki_storage_dir }}/chunks"
 
 loki_defaults_config_querier:
   query_timeout: 0s
@@ -222,7 +226,8 @@ loki_defaults_config_ruler:
       store: inmemory
   enable_api: true
 
-loki_defaults_config_tracing: {}
+loki_defaults_config_tracing:
+  enabled: false
 
 go_arch_map:
   x86_64: 'amd64'

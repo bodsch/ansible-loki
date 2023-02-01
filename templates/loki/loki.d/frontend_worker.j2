@@ -1,0 +1,19 @@
+
+{% import 'jinja_macros.j2' as tpl with context -%}
+{% if loki_config_frontend_worker | default({}) | count > 0 %}
+  {%- set valid_keys = ["frontend_address","parallelism","match_max_concurrent","dns_lookup_duration","scheduler_address"] %}
+frontend_worker:
+  {% for key, v in loki_config_frontend_worker.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_frontend_worker.grpc_client_config is defined and
+        loki_config_frontend_worker.grpc_client_config | count > 0 %}
+  grpc_client_config:
+    {{ tpl.makro_grpc_client_config(loki_config_frontend_worker.grpc_client_config) | indent(4, False) }}
+  {% endif %}
+{% endif %}

@@ -5,20 +5,8 @@
 {% set print = self %}
 
 {# https://grafana.com/docs/loki/latest/configuration/#ring #}
-{%- macro loki_rings(data, i = 6) -%}
-{#
-# The key-value store used to share the hash ring across multiple instances.
-kvstore:
-  [store: <string> | default = "memberlist"]
-  [prefix: <string> | default = "collectors/"]
-  [consul: <consul_config>]
-  [etcd: <etcd_config>]
-  multi:
-    [primary: <string> | default = ""]
-    [secondary: <string> | default = ""]
-    [mirror_enabled: <boolean> | default = false]
-    [mirror_timeout: <duration> | default = 2s]
-#}
+{%- macro makro_rings(data, i = 6) -%}
+{# .... #}
 {% if data.heartbeat_period is defined and
       data.heartbeat_period | string | length > 0 %}
 heartbeat_period: {{ data.heartbeat_period | indent(i) }}
@@ -69,21 +57,22 @@ kvstore:
   {% endif %}
   {% if _kv_store == "consul" %}
   consul:
-    {{ loki_consul(data.kvstore.consul | default({})) | indent(4, False) }}
+    {{ makro_consul(data.kvstore.consul | default({})) | indent(4, False) }}
   {% endif %}
   {% if _kv_store == "etcd" %}
   etcd:
-    {{ loki_etcd(data.kvstore.etcd | default({})) | indent(4, False) }}
+    {{ makro_etcd(data.kvstore.etcd | default({})) | indent(4, False) }}
   {% endif %}
   {% if data.kvstore.multi is defined and
         data.kvstore.multi | count > 0 %}
   multi:
-    {{ loki_multi(data.kvstore.multi | default({})) | indent(4, False) }}
+    {{ makro_multi(data.kvstore.multi | default({})) | indent(4, False) }}
   {% endif %}
 {% endif %}
+{# .... #}
 {%- endmacro -%}
 
-{%- macro loki_consul(data, i = 6) -%}
+{%- macro makro_consul(data, i = 6) -%}
 {# .... #}
 {% if not data %}
 # not consul data defined
@@ -100,7 +89,7 @@ consistent_reads: {{ data.consistent_reads | default('true') | bool | ternary('t
 {# .... #}
 {%- endmacro -%}
 
-{%- macro loki_etcd(data, i = 6) -%}
+{%- macro makro_etcd(data, i = 6) -%}
 {# .... #}
 {% if not data %}
 # not etcd data defined
@@ -121,7 +110,7 @@ max_retries: {{ data.endpoints.max_retries }}
 {# .... #}
 {%- endmacro -%}
 
-{%- macro loki_multi(data, i = 6) -%}
+{%- macro makro_multi(data, i = 6) -%}
 {# .... #}
 {% if not data %}
 # not multi data defined
@@ -145,7 +134,7 @@ mirror_timeout: {{ data.mirror_timeout }}
 {# .... #}
 {%- endmacro -%}
 
-{%- macro loki_grpc_client_config(data, i = 6) -%}
+{%- macro makro_grpc_client_config(data, i = 6) -%}
 {# ... #}
 {% if not data %}
 # not grpc_client_config data defined
@@ -194,7 +183,7 @@ backoff_config:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#query_range #}
-{%- macro loki_query_range(data, i = 6) -%}
+{%- macro makro_query_range(data, i = 6) -%}
 {# ... #}
 {% if not data %}
 # not query_range data defined
@@ -217,14 +206,14 @@ cache_results: {{ data.cache_results | bool | ternary('true','false') }}
   {% endif %}
   {% if data.results_cache is defined %}
 results_cache:
-  cache: {{ loki_cache(data.results_cache.cache | default({})) | indent(2, False) }}
+  cache: {{ makro_cache(data.results_cache.cache | default({})) | indent(2, False) }}
   {% endif %}
 {% endif %}
 {# .... #}
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#cache_config #}
-{%- macro loki_cache(data, i = 6) -%}
+{%- macro makro_cache(data, i = 6) -%}
 {# .... #}
 {% if not data %}
 # not cache data defined
@@ -334,7 +323,7 @@ results_cache:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#index_gateway #}
-{%- macro loki_index_gateway(data, i = 6) -%}
+{%- macro makro_index_gateway(data, i = 6) -%}
 {# ... #}
 {% if not data %}
 # not index_gateway data defined
@@ -347,23 +336,358 @@ mode: {{ data.mode }}
         data.ring is defined and
         data.ring | count > 0 %}
 ring:
-  {{ loki_rings(data.ring) | indent(2, False) }}
+  {{ makro_rings(data.ring) | indent(2, False) }}
   {% endif %}
-{#
+{% endif %}
+{# .... #}
+{%- endmacro -%}
 
- Defines in which mode the index gateway server will operate (default to 'simple').
-# It supports two modes:
-# 'simple': an index gateway server instance is responsible for handling,
-#     storing and returning requests for all indices for all tenants.
-# 'ring': an index gateway server instance is responsible for a subset of tenants instead
-#     of all tenants.
-[mode: <string> | default = simple]
+{# https://grafana.com/docs/loki/latest/configuration/#schema_config #}
+{%- macro makro_schema_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not schema_config data defined
+{% else %}
+configs:
+  {% set valid_keys = ["store","object_store","schema","row_shards"] %}
+  {% for c in data.configs %}
+  - from: {{ c.from }}
+    {% for k, v in c.items() %}
+      {% if k in valid_keys %}
+    {{ k }}: {{ v }}
+      {% endif %}
+    {% endfor %}
+    {% if c.index is defined and
+          c.index | count > 0 %}
+    index:
+      {% if c.index.prefix is defined and
+            c.index.prefix | string | length > 0 %}
+      prefix: {{ c.index.prefix }}
+      {% endif %}
+      {% if c.index.period is defined and
+            c.index.period | string | length > 0 %}
+      period: {{ c.index.period }}
+      {% endif %}
+      {% if c.index.tags is defined and
+            c.index.tags | count > 0 %}
+      tags:
+        {% for k, v in c.index.tags.items() %}
+        {{ k }}: {{ v }}
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+    {% if c.chunks is defined and
+          c.chunks | count > 0 %}
+    chunks:
+      {% if c.chunks.prefix is defined and
+            c.chunks.prefix | string | length > 0 %}
+      prefix: {{ c.chunks.prefix }}
+      {% endif %}
+      {% if c.chunks.period is defined and
+            c.chunks.period | string | length > 0 %}
+      period: {{ c.chunks.period }}
+      {% endif %}
+      {% if c.chunks.tags is defined and
+            c.chunks.tags | count > 0 %}
+      tags:
+        {% for k, v in c.chunks.tags.items() %}
+        {{ k }}: {{ v }}
+        {% endfor %}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
 
-# Defines the ring to be used by the index gateway servers and clients in case the servers
-# are configured to run in 'ring' mode. In case this isn't configured, this block supports
-# inheriting configuration from the common ring section.
-[ring: <ring>]
-#}
+{# https://grafana.com/docs/loki/latest/configuration/#provision_config #}
+{%- macro makro_provision_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not provision_config data defined
+{% else %}
+  {% if data.enable_ondemand_throughput_mode is defined %}
+enable_ondemand_throughput_mode: {{ data.enable_ondemand_throughput_mode | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.provisioned_write_throughput is defined and
+        data.provisioned_write_throughput | string | length > 0 %}
+provisioned_write_throughput: {{ data.provisioned_write_throughput }}
+  {% endif %}
+  {% if data.provisioned_read_throughput is defined and
+        data.provisioned_read_throughput | string | length > 0 %}
+provisioned_read_throughput: {{ data.provisioned_read_throughput }}
+  {% endif %}
+
+  {% if data.enable_inactive_throughput_on_demand_mode is defined %}
+enable_inactive_throughput_on_demand_mode: {{ data.enable_inactive_throughput_on_demand_mode | bool | ternary('true','false') }}
+  {% endif %}
+  {% if data.inactive_write_throughput is defined and
+        data.inactive_write_throughput | string | length > 0 %}
+inactive_write_throughput: {{ data.inactive_write_throughput }}
+  {% endif %}
+  {% if data.inactive_read_throughput is defined and
+        data.inactive_read_throughput | string | length > 0 %}
+inactive_read_throughput: {{ data.inactive_read_throughput }}
+  {% endif %}
+  {% if data.write_scale is defined %}
+write_scale:
+  {{ makro_auto_scaling_config(data.write_scale) }}
+  {% endif %}
+  {% if data.inactive_write_scale is defined %}
+inactive_write_scale:
+  {{ makro_auto_scaling_config(data.inactive_write_scale) }}
+  {% endif %}
+  {% if data.inactive_write_scale_lastn is defined and
+        data.inactive_write_scale_lastn | string | length > 0 %}
+inactive_write_scale_lastn: {{ data.inactive_write_scale_lastn }}
+  {% endif %}
+  {% if data.read_scale is defined %}
+read_scale:
+  {{ makro_auto_scaling_config(data.read_scale) }}
+  {% endif %}
+  {% if data.inactive_read_scale is defined %}
+inactive_read_scale:
+  {{ makro_auto_scaling_config(data.inactive_read_scale)}}
+  {% endif %}
+  {% if data.inactive_read_scale_lastn is defined and
+        data.inactive_read_scale_lastn | string | length > 0 %}
+inactive_read_scale_lastn: {{ data.inactive_read_scale_lastn }}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#auto_scaling_config #}
+{%- macro makro_auto_scaling_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not provision_config data defined
+{% else %}
+enabled: {{ data.enabled | default('false') | bool | ternary('true','false') }}
+  {% if data.enabled | default('false') %}
+    {% if data.role_arn is defined and
+          data.role_arn | string | length > 0 %}
+role_arn: {{ data.role_arn }}
+    {% endif %}
+    {% if data.min_capacity is defined and
+          data.min_capacity | string | length > 0 %}
+min_capacity: {{ data.min_capacity }}
+   {% endif %}
+   {% if data.max_capacity is defined and
+         data.max_capacity | string | length > 0 %}
+max_capacity: {{ data.max_capacity }}
+    {% endif %}
+    {% if data.out_cooldown is defined and
+          data.out_cooldown | string | length > 0 %}
+out_cooldown: {{ data.out_cooldown }}
+    {% endif %}
+    {% if data.in_cooldown is defined and
+          data.in_cooldown | string | length > 0 %}
+in_cooldown: {{ data.in_cooldown }}
+    {% endif %}
+    {% if data.target is defined and
+         data.target | string | length > 0 %}
+target: {{ data.target }}
+    {% endif %}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#storage #}
+{%- macro makro_storage(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not storage data defined
+{% else %}
+  {% if data.azure is defined and
+        data.azure | count > 0 %}
+azure:
+  {{ makro_azure_storage_config(data.azure) | indent(2, False) }}
+  {% endif %}
+  {% if data.gcs is defined and
+        data.gcs | count > 0 %}
+gcs:
+  {{ makro_gcs_storage_config(data.gcs) | indent(2, False) }}
+  {% endif %}
+  {% if data.s3 is defined and
+        data.s3 | count > 0 %}
+s3:
+  {{ makro_s3_storage_config(data.s3) | indent(2, False) }}
+  {% endif %}
+  {% if data.swift is defined and
+        data.swift | count > 0 %}
+swift:
+  {{ makro_swift_storage_config(data.swift) | indent(2, False) }}
+  {% endif %}
+  {% if data.filesystem is defined and
+        data.filesystem | count > 0 %}
+filesystem:
+  {{ makro_local_storage_config(data.filesystem) | indent(2, False) }}
+  {% endif %}
+  {% if data.bos is defined and
+        data.bos | count > 0 %}
+bos:
+  {{ makro_bos_storage_config(data.bos) | indent(2, False) }}
+  {% endif %}
+  {% if data.hedging is defined and
+        data.hedging | count > 0 %}
+hedging:
+  {{ makro_hedging_storage_config(data.hedging) | indent(2, False) }}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#bos_storage_config #}
+{%- macro makro_bos_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not bos_storage_config data defined
+{% else %}
+  {% set valid_keys = ["bucket_name","endpoint","access_key_id","secret_access_key"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#azure_storage_config #}
+{%- macro makro_azure_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not azure_storage_config data defined
+{% else %}
+  {% set valid_keys = [
+    "environment","account_name","account_key","container_name",
+    "endpoint_suffix","use_managed_identity","user_assigned_id","chunk_delimiter","download_buffer_size",
+    "upload_buffer_size","upload_buffer_count","request_timeout","max_retries","min_retry_delay","max_retry_delay"]
+  %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#gcs_storage_config #}
+{%- macro makro_gcs_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not gcs_storage_config data defined
+{% else %}
+  {% set valid_keys = ["bucket_name","service_account","chunk_buffer_size","request_timeout","enable_http2"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#s3_storage_config #}
+{%- macro makro_s3_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not s3_storage_config data defined
+{% else %}
+  {% set valid_keys = ["s3","s3forcepathstyle","bucketnames","endpoint","region","access_key_id","secret_access_key","insecure","sse_encryption"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if data.http_config is defined and
+        data.http_config | count > 0 %}
+http_config:
+    {% set valid_keys = ["idle_conn_timeout","response_header_timeout","insecure_skip_verify","ca_file"] %}
+    {% for key, v in data.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+  {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#swift_storage_config #}
+{%- macro makro_swift_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not swift_storage_config data defined
+{% else %}
+  {% set valid_keys = [
+    "auth_url","username","user_domain_name","user_domain_id","user_id",
+    "password","domain_id","domain_name","project_id","project_name",
+    "project_domain_id","project_domain_name","region_name","container_name"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#hedging #}
+{%- macro makro_hedging_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not hedging_storage_config data defined
+{% else %}
+  {% set valid_keys = ["at","up_to","max_per_second"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#local_storage_config #}
+{%- macro makro_local_storage_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not local_storage_config data defined
+{% else %}
+  {% set valid_keys = ["chunks_directory","rules_directory"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
 {# .... #}
 {%- endmacro -%}

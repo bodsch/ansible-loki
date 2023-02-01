@@ -1,5 +1,5 @@
 
-{% import 'jinja_macros.j2' as tpl with context %}
+{% import 'jinja_macros.j2' as tpl with context -%}
 {% if loki_config_chunk_store | default({}) | count > 0 %}
   {# https://grafana.com/docs/loki/latest/configuration/#chunk_store_config #}
 chunk_store_config:
@@ -13,36 +13,10 @@ chunk_store_config:
   {% endif %}
   {% if loki_config_chunk_store.write_dedupe_cache_config is defined %}
   write_dedupe_cache_config:
-    {{ tpl.loki_cache(loki_config_chunk_store.write_dedupe_cache_config | default({})) | indent(2, False) }}
+    {{- tpl.makro_cache(loki_config_chunk_store.write_dedupe_cache_config | default({})) | indent(2, False) -}}
   {% endif %}
   {% if loki_config_chunk_store.chunk_cache_config is defined %}
   chunk_cache_config:
-    {{ tpl.loki_cache(loki_config_chunk_store.chunk_cache_config | default({})) | indent(2, False) }}
+    {{- tpl.makro_cache(loki_config_chunk_store.chunk_cache_config | default({})) | indent(2, False) -}}
   {% endif %}
-
-  #-----
-  {# loki_config_chunk_store | to_nice_yaml(indent=2) | indent(2, False) #}
-  #-----
 {% endif %}
-
-
-{#
-# The cache configuration for storing chunks
-# The CLI flags prefix for this block config is: store.chunks-cache
-[chunk_cache_config: <cache_config>]
-
-# The cache configuration for deduplicating writes
-# The CLI flags prefix for this block config is: store.index-cache-write
-[write_dedupe_cache_config: <cache_config>]
-
-# Cache index entries older than this period. Default is disabled.
-# CLI flag: -store.cache-lookups-older-than
-[cache_lookups_older_than: <duration>]
-
-# Limit how long back data can be queried. Default is disabled.
-# This should always be set to a value less than or equal to
-# what is set in `table_manager.retention_period` .
-# CLI flag: -store.max-look-back-period
-[max_look_back_period: <duration>]
-
-#}

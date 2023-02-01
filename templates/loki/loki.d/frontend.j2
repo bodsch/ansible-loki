@@ -7,24 +7,22 @@
   {%- set valid_tls_keys = [
     "tls_cert_path", "tls_key_path", "tls_ca_path", "tls_insecure_skip_verify", "tls_cipher_suites", "tls_min_version" ] -%}
 frontend:
-  {% for k, v in loki_config_frontend.items() %}
-    {% if k in valid_keys %}
-      {% if v is boolean %}
-  {{ k }}: {{ v | bool | ternary('true','false') }}
-      {% else %}
-  {{ k }}: {{ v }}
+  {% for key, v in loki_config_frontend.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
       {% endif %}
     {% endif %}
   {% endfor %}
   {% if loki_config_frontend.tail_tls_config is defined and
         loki_config_frontend.tail_tls_config | count > 0 %}
   tail_tls_config:
-    {% for k, v in loki_config_frontend.items() %}
-      {% if k in valid_tls_keys %}
-        {% if v is boolean %}
-    {{ k }}: {{ v | bool | ternary('true','false') }}
-        {% else %}
-    {{ k }}: {{ v }}
+    {% for key, v in loki_config_frontend.items() %}
+      {% if key in valid_tls_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
         {% endif %}
       {% endif %}
     {% endfor %}

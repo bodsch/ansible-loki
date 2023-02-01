@@ -6,36 +6,25 @@
         loki_config_server.log_level in ["debug", "info", "warn", "error"] %}
     {% set _log_level = loki_config_server.log_level %}
   {% endif %}
+  {%- set valid_http_keys = [
+    "register_instrumentation", "graceful_shutdown_timeout",
+    "http_listen_address", "http_listen_port", "http_path_prefix",
+    "http_server_read_timeout", "http_server_write_timeout", "http_server_idle_timeout", "tail_proxy_url" ] -%}
+  {%- set valid_grpc_keys = [
+    "grpc_listen_address", "grpc_listen_port", "grpc_server_max_recv_msg_size",
+    "grpc_server_max_send_msg_size", "grpc_server_max_concurrent_streams" ] -%}
 server:
   log_level: {{ _log_level }}
-  {% if loki_config_server.register_instrumentation is defined %}
-  register_instrumentation: {{ loki_config_server.register_instrumentation | bool | ternary('true', 'false') }}
-  {% endif %}
-  {% if loki_config_server.graceful_shutdown_timeout is defined and
-        loki_config_server.graceful_shutdown_timeout | string | length > 0 %}
-  graceful_shutdown_timeout: {{ loki_config_server.graceful_shutdown_timeout }}
-  {% endif %}
-  {# http #}
-  {% if loki_config_server.http_listen_port is defined and
-        loki_config_server.http_listen_port | string | length > 0 %}
-  http_listen_address: {{ loki_config_server.http_listen_port }}
-  {% endif %}
-  {% if loki_config_server.http_path_prefix is defined and
-        loki_config_server.http_path_prefix | string | length > 0 %}
-  http_path_prefix: {{ loki_config_server.http_path_prefix }}
-  {% endif %}
-  {% if loki_config_server.http_server_read_timeout is defined and
-        loki_config_server.http_server_read_timeout | string | length > 0 %}
-  http_server_read_timeout: {{ loki_config_server.http_server_read_timeout }}
-  {% endif %}
-  {% if loki_config_server.http_server_write_timeout is defined and
-        loki_config_server.http_server_write_timeout | string | length > 0 %}
-  http_server_write_timeout: {{ loki_config_server.http_server_write_timeout }}
-  {% endif %}
-  {% if loki_config_server.http_server_idle_timeout is defined and
-        loki_config_server.http_server_idle_timeout | string | length > 0 %}
-  http_server_idle_timeout: {{ loki_config_server.http_server_idle_timeout }}
-  {% endif %}
+  {# http  #}
+  {% for key, v in loki_config_server.items() %}
+    {% if key in valid_http_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {#   #}
   {% if loki_config_server.http_tls_config is defined and
         loki_config_server.http_tls_config | count > 0 and
         loki_config_server.http_tls_config | loki_tls_certificates %}
@@ -66,26 +55,15 @@ server:
     {% endif %}
   {% endif %}
   {# grpc #}
-  {% if loki_config_server.grpc_listen_address is defined and
-        loki_config_server.grpc_listen_address | string | length > 0 %}
-  grpc_listen_address: {{ loki_config_server.grpc_listen_address }}
-  {% endif %}
-  {% if loki_config_server.grpc_listen_port is defined and
-        loki_config_server.grpc_listen_port | string | length > 0 %}
-  grpc_listen_port: {{ loki_config_server.grpc_listen_port }}
-  {% endif %}
-  {% if loki_config_server.grpc_server_max_recv_msg_size is defined and
-        loki_config_server.grpc_server_max_recv_msg_size | string | length > 0 %}
-  grpc_server_max_recv_msg_size: {{ loki_config_server.grpc_server_max_recv_msg_size }}
-  {% endif %}
-  {% if loki_config_server.grpc_server_max_send_msg_size is defined and
-        loki_config_server.grpc_server_max_send_msg_size | string | length > 0 %}
-  grpc_server_max_send_msg_size: {{ loki_config_server.grpc_server_max_send_msg_size }}
-  {% endif %}
-  {% if loki_config_server.grpc_server_max_concurrent_streams is defined and
-        loki_config_server.grpc_server_max_concurrent_streams | string | length > 0 %}
-  grpc_server_max_concurrent_streams: {{ loki_config_server.grpc_server_max_concurrent_streams }}
-  {% endif %}
+  {% for key, v in loki_config_server.items() %}
+    {% if key in valid_grpc_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {#   #}
   {% if loki_config_server.grpc_tls_config is defined and
         loki_config_server.grpc_tls_config | count > 0 and
         loki_config_server.grpc_tls_config | loki_tls_certificates %}
