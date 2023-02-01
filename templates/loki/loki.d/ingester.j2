@@ -1,6 +1,7 @@
 
 {% import 'jinja_macros.j2' as tpl with context %}
 {% if loki_config_ingester | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#ingester #}
 ingester:
   {# wal #}
   {% if loki_config_ingester.wal is defined and

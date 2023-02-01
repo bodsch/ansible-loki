@@ -1,5 +1,7 @@
 
+{% import 'jinja_macros.j2' as tpl with context %}
 {% if loki_config_index_gateway | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#ingester_client #}
 index_gateway:
-  {{ loki_config_index_gateway | to_nice_yaml(indent=2) | indent(2, False) }}
+  {{ tpl.loki_index_gateway(loki_config_index_gateway) | indent(2, False) }}
 {% endif %}

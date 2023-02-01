@@ -1,5 +1,7 @@
 
 {% if loki_config_memberlist | default({}) | count > 0 %}
+  {# to be cleared #}
+  {# https://grafana.com/docs/loki/latest/configuration/#memberlist_config #}
 memberlist:
   {{ loki_config_memberlist | to_nice_yaml(indent=2) | indent(2, False) }}
 {% endif %}

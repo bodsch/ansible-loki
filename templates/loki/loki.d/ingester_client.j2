@@ -1,32 +1,30 @@
 
+{% import 'jinja_macros.j2' as tpl with context %}
 {% if loki_config_ingester_client | default({}) | count > 0 %}
+  {# https://grafana.com/docs/loki/latest/configuration/#ingester_client #}
 ingester_client:
-  {{ loki_config_ingester_client | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_ingester_client.remote_timeout is defined and
+        loki_config_ingester_client.remote_timeout | string | length > 0 %}
+  remote_timeout: {{ loki_config_ingester_client.remote_timeout }}
+  {% endif %}
+  {% if loki_config_ingester_client.pool_config is defined and
+        loki_config_ingester_client.pool_config | count > 0 %}
+  pool_config:
+    {% if loki_config_ingester_client.pool_config.health_check_ingesters is defined %}
+    health_check_ingesters: {{ loki_config_ingester_client.pool_config.health_check_ingesters | bool | ternary('true','false') }}
+    {% endif %}
+    {% if loki_config_ingester_client.pool_config.client_cleanup_period is defined and
+          loki_config_ingester_client.pool_config.client_cleanup_period | string | length > 0 %}
+    client_cleanup_period: {{ loki_config_ingester_client.pool_config.client_cleanup_period }}
+    {% endif %}
+    {% if loki_config_ingester_client.pool_config.remote_timeout is defined and
+          loki_config_ingester_client.pool_config.remote_timeout | string | length > 0 %}
+    remote_timeout: {{ loki_config_ingester_client.pool_config.remote_timeout }}
+    {% endif %}
+  {% endif %}
+  {% if loki_config_ingester_client.grpc_client_config is defined and
+        loki_config_ingester_client.grpc_client_config | count > 0 %}
+  grpc_client_config:
+    {{ tpl.loki_grpc_client_config(loki_config_ingester_client.grpc_client_config) | indent(4, False) }}
+  {% endif %}
 {% endif %}
-{#
-# Configures how connections are pooled
-pool_config:
-  # Whether or not to do health checks.
-  # CLI flag: -distributor.health-check-ingesters
-  [health_check_ingesters: <boolean> | default = false]
-
-  # How frequently to clean up clients for servers that have gone away after
-  # a health check.
-  # CLI flag: -distributor.client-cleanup-period
-  [client_cleanup_period: <duration> | default = 15s]
-
-  # How quickly a dead client will be removed after it has been detected
-  # to disappear. Set this to a value to allow time for a secondary
-  # health check to recover the missing client.
-  # CLI flag: -ingester.client.healthcheck-timeout
-  [remote_timeout: <duration> | default = 1s]
-
-# The remote request timeout on the client side.
-# CLI flag: -ingester.client.timeout
-[remote_timeout: <duration> | default = 5s]
-
-# Configures how the gRPC connection to ingesters work as a client
-# The CLI flags prefix for this block config is: ingester.client
-[grpc_client_config: <grpc_client_config>]
-
-#}

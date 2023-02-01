@@ -4,6 +4,7 @@
 #}
 {% set print = self %}
 
+{# https://grafana.com/docs/loki/latest/configuration/#ring #}
 {%- macro loki_rings(data, i = 6) -%}
 {#
 # The key-value store used to share the hash ring across multiple instances.
@@ -222,6 +223,7 @@ results_cache:
 {# .... #}
 {%- endmacro -%}
 
+{# https://grafana.com/docs/loki/latest/configuration/#cache_config #}
 {%- macro loki_cache(data, i = 6) -%}
 {# .... #}
 {% if not data %}
@@ -331,3 +333,37 @@ results_cache:
 {# .... #}
 {%- endmacro -%}
 
+{# https://grafana.com/docs/loki/latest/configuration/#index_gateway #}
+{%- macro loki_index_gateway(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not index_gateway data defined
+{% else %}
+  {% if data.mode is defined and
+        data.mode in ["simple", "ring"] %}
+mode: {{ data.mode }}
+  {% endif %}
+  {% if data.mode == "ring" and
+        data.ring is defined and
+        data.ring | count > 0 %}
+ring:
+  {{ loki_rings(data.ring) | indent(2, False) }}
+  {% endif %}
+{#
+
+ Defines in which mode the index gateway server will operate (default to 'simple').
+# It supports two modes:
+# 'simple': an index gateway server instance is responsible for handling,
+#     storing and returning requests for all indices for all tenants.
+# 'ring': an index gateway server instance is responsible for a subset of tenants instead
+#     of all tenants.
+[mode: <string> | default = simple]
+
+# Defines the ring to be used by the index gateway servers and clients in case the servers
+# are configured to run in 'ring' mode. In case this isn't configured, this block supports
+# inheriting configuration from the common ring section.
+[ring: <ring>]
+#}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
