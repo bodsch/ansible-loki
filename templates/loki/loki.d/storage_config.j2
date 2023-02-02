@@ -198,7 +198,7 @@ storage_config:
     {% if loki_config_storage.boltdb_shipper.index_gateway_client is defined and
           loki_config_storage.boltdb_shipper.index_gateway_client | count > 0 %}
     index_gateway_client:
-      {% if loki_config_storage.boltdb_shipper.index_gateway_client.server_address is define and
+      {% if loki_config_storage.boltdb_shipper.index_gateway_client.server_address is defined and
             loki_config_storage.boltdb_shipper.index_gateway_client.server_address | string | length > 0 %}
       server_address: {{ loki_config_storage.boltdb_shipper.index_gateway_client.server_address }}
       {% endif %}
