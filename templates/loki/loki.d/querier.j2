@@ -2,23 +2,17 @@
 {% if loki_config_querier | default({}) | count > 0 %}
   {# https://grafana.com/docs/loki/latest/configuration/#querier #}
 querier:
-  {% if loki_config_querier.query_timeout is defined and
-        loki_config_querier.query_timeout | string | length > 0 %}
-  query_timeout: {{ loki_config_querier.query_timeout }}
-  {% endif %}
-  {% if loki_config_querier.multi_tenant_queries_enabled is defined %}
-  multi_tenant_queries_enabled: {{ loki_config_querier.multi_tenant_queries_enabled | bool | ternary('true', 'false') }}
-  {% endif %}
-  {% if loki_config_querier.query_ingester_only is defined %}
-  query_ingester_only:  {{ loki_config_querier.query_ingester_only | bool | ternary('true', 'false') }}
-  {% endif %}
-  {% if loki_config_querier.query_store_only is defined %}
-  query_store_only:  {{ loki_config_querier.query_store_only | bool | ternary('true', 'false') }}
-  {% endif %}
-  {% if loki_config_querier.max_concurrent is defined and
-        loki_config_querier.max_concurrent | string | length > 0 %}
-  max_concurrent: {{ loki_config_querier.max_concurrent }}
-  {% endif %}
+  {% set valid_keys = [
+    "query_timeout","multi_tenant_queries_enabled","query_ingester_only",
+    "query_store_only","max_concurrent","query_ingesters_within","tail_max_duration"] %}
+  {% for key, v in loki_config_querier.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
   {% if loki_config_querier.engine is defined and
         loki_config_querier.engine | count > 0 %}
   engine:
@@ -30,13 +24,5 @@ querier:
           loki_config_querier.engine.timeout | string | length > 0 %}
     timeout: {{ loki_config_querier.engine.timeout }}
     {% endif %}
-  {% endif %}
-  {% if loki_config_querier.query_ingesters_within is defined and
-        loki_config_querier.query_ingesters_within | string | length > 0 %}
-  query_ingesters_within: {{ loki_config_querier.query_ingesters_within }}
-  {% endif %}
-  {% if loki_config_querier.tail_max_duration is defined and
-        loki_config_querier.tail_max_duration | string | length > 0 %}
-  tail_max_duration: {{ loki_config_querier.tail_max_duration }}
   {% endif %}
 {% endif %}

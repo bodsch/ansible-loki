@@ -29,30 +29,7 @@ server:
         loki_config_server.http_tls_config | count > 0 and
         loki_config_server.http_tls_config | loki_tls_certificates %}
   http_tls_config:
-    {% if loki_config_server.http_tls_config.cert_file is defined and
-          loki_config_server.http_tls_config.cert_file | string | length > 0 %}
-    cert_file: {{ loki_config_server.http_tls_config.cert_file }}
-    {% endif %}
-    {% if loki_config_server.http_tls_config.key_file is defined and
-          loki_config_server.http_tls_config.key_file | string | length > 0 %}
-    key_file: {{ loki_config_server.http_tls_config.key_file }}
-    {% endif %}
-    {% if loki_config_server.http_tls_config.client_auth_type is defined and
-          loki_config_server.http_tls_config.client_auth_type | string | length > 0 %}
-    client_auth_type: {{ loki_config_server.http_tls_config.client_auth_type }}
-    {% endif %}
-    {% if loki_config_server.http_tls_config.client_ca_file is defined and
-          loki_config_server.http_tls_config.client_ca_file | string | length > 0 %}
-    client_ca_file: {{ loki_config_server.http_tls_config.client_ca_file }}
-    {% endif %}
-    {% if loki_config_server.http_tls_config.tls_cipher_suites is defined and
-          loki_config_server.http_tls_config.tls_cipher_suites | string | length > 0 %}
-    tls_cipher_suites: {{ loki_config_server.http_tls_config.tls_cipher_suites }}
-    {% endif %}
-    {% if loki_config_server.http_tls_config.tls_min_version is defined and
-          loki_config_server.http_tls_config.tls_min_version | string | length > 0 %}
-    tls_min_version: {{ loki_config_server.http_tls_config.tls_min_version }}
-    {% endif %}
+    {{ tpl.makro_tls_config(loki_config_server.http_tls_config) | indent(4, False) -}}
   {% endif %}
   {# grpc #}
   {% for key, v in loki_config_server.items() %}
@@ -68,29 +45,6 @@ server:
         loki_config_server.grpc_tls_config | count > 0 and
         loki_config_server.grpc_tls_config | loki_tls_certificates %}
   grpc_tls_config:
-    {% if loki_config_server.grpc_tls_config.cert_file is defined and
-          loki_config_server.grpc_tls_config.cert_file | string | length > 0 %}
-    cert_file: {{ loki_config_server.grpc_tls_config.cert_file }}
-    {% endif %}
-    {% if loki_config_server.grpc_tls_config.key_file is defined and
-          loki_config_server.grpc_tls_config.key_file | string | length > 0 %}
-    key_file: {{ loki_config_server.grpc_tls_config.key_file }}
-    {% endif %}
-    {% if loki_config_server.grpc_tls_config.client_auth_type is defined and
-          loki_config_server.grpc_tls_config.client_auth_type | string | length > 0 %}
-    client_auth_type: {{ loki_config_server.grpc_tls_config.client_auth_type }}
-    {% endif %}
-    {% if loki_config_server.grpc_tls_config.client_ca_file is defined and
-          loki_config_server.grpc_tls_config.client_ca_file | string | length > 0 %}
-    client_ca_file: {{ loki_config_server.grpc_tls_config.client_ca_file }}
-    {% endif %}
-    {% if loki_config_server.grpc_tls_config.tls_cipher_suites is defined and
-          loki_config_server.grpc_tls_config.tls_cipher_suites | string | length > 0 %}
-    tls_cipher_suites: {{ loki_config_server.grpc_tls_config.tls_cipher_suites }}
-    {% endif %}
-    {% if loki_config_server.grpc_tls_config.tls_min_version is defined and
-          loki_config_server.grpc_tls_config.tls_min_version | string | length > 0 %}
-    tls_min_version: {{ loki_config_server.grpc_tls_config.tls_min_version }}
-    {% endif %}
+    {{ tpl.makro_tls_config(loki_config_server.grpc_tls_config) | indent(4, False) -}}
   {% endif %}
 {% endif %}

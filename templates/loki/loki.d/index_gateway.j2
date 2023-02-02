@@ -3,5 +3,5 @@
 {% if loki_config_index_gateway | default({}) | count > 0 %}
   {# https://grafana.com/docs/loki/latest/configuration/#ingester_client #}
 index_gateway:
-  {{ tpl.makro_index_gateway(loki_config_index_gateway) | indent(2, False) }}
+  {{ tpl.makro_index_gateway(loki_config_index_gateway) | indent(2, False) -}}
 {% endif %}

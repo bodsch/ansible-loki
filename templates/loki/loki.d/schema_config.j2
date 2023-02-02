@@ -3,5 +3,5 @@
 {% if loki_config_schema | default({}) | count > 0 %}
   {# https://grafana.com/docs/loki/latest/configuration/#schema_config #}
 schema_config:
-  {{ tpl.makro_schema_config(loki_config_schema) | indent(2, False) }}
+  {{ tpl.makro_schema_config(loki_config_schema) | indent(2, False) -}}
 {% endif %}

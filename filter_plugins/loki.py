@@ -55,7 +55,7 @@ class FilterModule(object):
         """
         """
         result = None
-        display.v(f"value({data} {type(data)})")
+        # display.v(f"value({data} {type(data)})")
 
         if isinstance(data, bool):
             result = 'true' if data else 'false'
@@ -65,6 +65,6 @@ class FilterModule(object):
         elif isinstance(data, int):
             result = data
 
-        display.v(f"= result: {result} {type(result)}")
+        # display.v(f"= result: {result} {type(result)}")
 
         return result

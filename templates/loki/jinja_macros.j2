@@ -7,41 +7,17 @@
 {# https://grafana.com/docs/loki/latest/configuration/#ring #}
 {%- macro makro_rings(data, i = 6) -%}
 {# .... #}
-{% if data.heartbeat_period is defined and
-      data.heartbeat_period | string | length > 0 %}
-heartbeat_period: {{ data.heartbeat_period | indent(i) }}
-{% endif %}
-{% if data.heartbeat_timeout is defined and
-      data.heartbeat_timeout | string | length > 0 %}
-heartbeat_timeout: {{ data.heartbeat_timeout | indent(i) }}
-{% endif %}
-{% if data.tokens_file_path is defined and
-      data.tokens_file_path | string | length > 0 %}
-tokens_file_path: {{ data.tokens_file_path | indent(i) }}
-{% endif %}
-{% if data.zone_awareness_enabled is defined %}
-zone_awareness_enabled: {{ data.zone_awareness_enabled | bool | ternary('true','false') | indent(i) }}
-{% endif %}
-{% if data.instance_interface_names is defined and
-      data.instance_interface_names | string | length > 0 %}
-instance_interface_names: {{ data.instance_interface_names }}
-{% endif %}
-{% if data.instance_addr is defined and
-      data.instance_addr | string | length > 0 %}
-instance_addr: {{ data.instance_addr }}
-{% endif %}
-{% if data.instance_port is defined and
-      data.instance_port | string | length > 0 %}
-instance_port: {{ data.instance_port }}
-{% endif %}
-{% if data.instance_id is defined and
-      data.instance_id | string | length > 0 %}
-instance_id: {{ data.instance_id }}
-{% endif %}
-{% if data.instance_availability_zone is defined and
-      data.instance_availability_zone | string | length > 0 %}
-instance_availability_zone: {{ data.instance_availability_zone }}
-{% endif %}
+  {% set valid_keys = [
+    "heartbeat_period","heartbeat_timeout","tokens_file_path","zone_awareness_enabled","instance_interface_names","instance_addr",
+    "instance_port","instance_id","instance_availability_zone"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% if data.kvstore is defined and
       data.kvstore | count > 0 %}
   {% set _kv_store = "inmemory" %}
@@ -77,15 +53,16 @@ kvstore:
 {% if not data %}
 # not consul data defined
 {% else %}
-host: {{ data.host | default("localhost:8500") }}
-  {% if data.acl_token is defined and
-        data.acl_token | string | length > 0 %}
-acl_token: {{ data.acl_token }}
-  {% endif %}
-http_client_timeout: {{ data.http_client_timeout | default('20s') }}
-consistent_reads: {{ data.consistent_reads | default('true') | bool | ternary('true','false') }}
+  {% set valid_keys = ["host","acl_token","http_client_timeout","consistent_reads"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
-
 {# .... #}
 {%- endmacro -%}
 
@@ -115,21 +92,15 @@ max_retries: {{ data.endpoints.max_retries }}
 {% if not data %}
 # not multi data defined
 {% else %}
-  {% if data.primary is defined and
-        data.primary | string | length > 0 %}
-primary: {{ data.primary }}
-  {% endif %}
-  {% if data.secondary is defined and
-        data.secondary | string | length > 0 %}
-secondary: {{ data.secondary }}
-  {% endif %}
-  {% if data.mirror_enabled is defined %}
-mirror_enabled: {{ data.mirror_enabled | bool | ternary('true','false') }}
-  {% endif %}
-  {% if data.mirror_timeout is defined and
-        data.mirror_timeout | string | length > 0 %}
-mirror_timeout: {{ data.mirror_timeout }}
-  {% endif %}
+  {% set valid_keys = ["primary","secondary","mirror_enabled","mirror_timeout"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% endif %}
 {# .... #}
 {%- endmacro -%}
@@ -139,28 +110,18 @@ mirror_timeout: {{ data.mirror_timeout }}
 {% if not data %}
 # not grpc_client_config data defined
 {% else %}
-  {% if data.max_recv_msg_size is defined and
-         data.max_recv_msg_size | string | length > 0 %}
-max_recv_msg_size: {{ data.max_recv_msg_size }}
-  {% endif %}
-  {% if data.max_send_msg_size is defined and
-         data.max_send_msg_size | string | length > 0 %}
-max_send_msg_size: {{ data.max_send_msg_size }}
-  {% endif %}
+  {% set valid_keys = ["max_recv_msg_size","max_send_msg_size","rate_limit","rate_limit_burst","backoff_on_ratelimits"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
   {% if data.grpc_compression is defined and
          data.grpc_compression in ["gzip", "snappy"] %}
 grpc_compression: {{ data.grpc_compression }}
-  {% endif %}
-  {% if data.rate_limit is defined and
-         data.rate_limit | string | length > 0 %}
-rate_limit: {{ data.rate_limit }}
-  {% endif %}
-  {% if data.rate_limit_burst is defined and
-         data.rate_limit_burst | string | length > 0 %}
-rate_limit_burst: {{ data.rate_limit_burst }}
-  {% endif %}
-  {% if data.backoff_on_ratelimits is defined %}
-backoff_on_ratelimits: {{ data.backoff_on_ratelimits | bool | ternary('true','false') }}
   {% endif %}
   {% if data.backoff_config is defined and
          data.backoff_config | count > 0 %}
@@ -188,25 +149,19 @@ backoff_config:
 {% if not data %}
 # not query_range data defined
 {% else %}
-  {% if data.split_queries_by_day is defined %}
-split_queries_by_day: {{ data.split_queries_by_day | bool | ternary('true','false') }}
-  {% endif %}
-  {% if data.align_queries_with_step is defined %}
-align_queries_with_step: {{ data.align_queries_with_step | bool | ternary('true','false') }}
-  {% endif %}
-  {% if data.max_retries is defined and
-        data.max_retries | string | length > 0%}
-max_retries: {{ data.max_retries }}
-  {% endif %}
-  {% if data.parallelise_shardable_queries is defined %}
-parallelise_shardable_queries: {{ data.parallelise_shardable_queries | bool | ternary('true','false') }}
-  {% endif %}
-  {% if data.cache_results is defined %}
-cache_results: {{ data.cache_results | bool | ternary('true','false') }}
-  {% endif %}
+  {% set valid_keys = ["split_queries_by_day","align_queries_with_step","max_retries","parallelise_shardable_queries","cache_results"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
   {% if data.results_cache is defined %}
 results_cache:
-  cache: {{ makro_cache(data.results_cache.cache | default({})) | indent(2, False) }}
+  cache:
+    {{ makro_cache(data.results_cache.cache | default({})) | indent(4, False) }}
   {% endif %}
 {% endif %}
 {# .... #}
@@ -218,105 +173,104 @@ results_cache:
 {% if not data %}
 # not cache data defined
 {% else %}
-
   {% if data.default_validity is defined and
         data.default_validity | string | length > 0 %}
-  default_validity: {{ data.default_validity }}
+default_validity: {{ data.default_validity }}
   {% endif %}
   {% if data.enable_fifocache is defined %}
-  # NOTE: `fifocache` is deprecated. Use `embedded-cache` instead.
-  enable_fifocache: {{ data.enable_fifocache | bool | ternary('true','false') }}
+# NOTE: `fifocache` is deprecated. Use `embedded-cache` instead.
+enable_fifocache: {{ data.enable_fifocache | bool | ternary('true','false') }}
     {% if data.enable_fifocache | bool %}
-  fifocache:
-    max_size_bytes: {{ data.fifocache.max_size_bytes | default("1GB") }}
-    max_size_items: {{ data.fifocache.max_size_items | default('0') }}
-      {% if data.fifocache.validity is defined and
-            data.fifocache.validity | string | length > 0 %}
-    # Deprecated: Use `fifocache.ttl`.
-    validity: {{ data.fifocache.validity }}
+fifocache:
+  max_size_bytes: {{ data.fifocache.max_size_bytes | default("1GB") }}
+  max_size_items: {{ data.fifocache.max_size_items | default('0') }}
+    {% if data.fifocache.validity is defined and
+          data.fifocache.validity | string | length > 0 %}
+  # Deprecated: Use `fifocache.ttl`.
+  validity: {{ data.fifocache.validity }}
       {% endif %}
-    ttl: {{ data.fifocache.ttl | default('1h') }}
+  ttl: {{ data.fifocache.ttl | default('1h') }}
     {% endif %}
   {% endif %}
   {% if data.embedded_cache is defined and
         data.embedded_cache | count > 0 and
         data.embedded_cache.enabled | default('false') %}
-  embedded_cache:
-    enabled: {{ data.embedded_cache.enabled | default('false') | bool | ternary('true','false') }}
-    max_size_mb: {{ data.embedded_cache.max_size_mb | default('100') }}
-    ttl: {{ data.embedded_cache.ttl | default('1h') }}
+embedded_cache:
+  enabled: {{ data.embedded_cache.enabled | default('false') | bool | ternary('true','false') }}
+  max_size_mb: {{ data.embedded_cache.max_size_mb | default('100') }}
+  ttl: {{ data.embedded_cache.ttl | default('1h') }}
   {% endif %}
   {# Configures memcached settings. #}
   {% if data.memcached is defined  and
         data.memcached | count > 0 %}
-  memcached:
+memcached:
     {% if data.memcached.expiration is defined and
           data.memcached.expiration | string | length > 0 %}
-    expiration: {{ data.memcached.expiration }}
+  expiration: {{ data.memcached.expiration }}
     {% endif %}
-    batch_size: {{ data.memcached.batch_size | default('1024') }}
-    parallelism: {{ data.memcached.parallelism | default('100') }}
+  batch_size: {{ data.memcached.batch_size | default('1024') }}
+  parallelism: {{ data.memcached.parallelism | default('100') }}
     {# Configures the background cache when memcached is used. #}
     {% if data.background is defined and
           data.background | count > 0  %}
-  background:
-    writeback_goroutines: {{ data.background.writeback_goroutines | default('10') }}
-    writeback_buffer: {{ data.background.writeback_buffer | default('10000') }}
+background:
+  writeback_goroutines: {{ data.background.writeback_goroutines | default('10') }}
+  writeback_buffer: {{ data.background.writeback_buffer | default('10000') }}
     {% endif %}
   {% endif %}
   {# Configures how to connect to one or more memcached servers #}
   {% if data.memcached_client is defined and
         data.memcached_client | count > 0 %}
-  memcached_client:
+memcached_client:
     {% if data.memcached_client.host is defined and
           data.memcached_client.host | string | length > 0 %}
-    host: {{ data.memcached_client.host }}
+  host: {{ data.memcached_client.host }}
     {% endif %}
-    service: {{ data.memcached_client.service | default('memcached') }}
+  service: {{ data.memcached_client.service | default('memcached') }}
     {% if data.memcached_client.addresses is defined and
           data.memcached_client.addresses | count > 0 %}
-    addresses: {{ data.memcached_client.addresses | join(',') }}
+  addresses: {{ data.memcached_client.addresses | join(',') }}
     {% endif %}
-    timeout: {{ data.memcached_client.timeout | default('100ms') }}
-    max_idle_conns: {{ data.memcached_client.max_idle_conns | default('16') }}
-    update_interval: {{ data.memcached_client.update_interval | default('1m') }}
-    consistent_hash: {{ data.memcached_client.consistent_hash | default('true') | bool | ternary('true','false') }}
-    circuit_breaker_consecutive_failures: {{ data.memcached_client.circuit_breaker_consecutive_failures | default('10') }}
-    circuit_breaker_timeout: {{ data.memcached_client.circuit_breaker_timeout | default('10s') }}
-    circuit_breaker_interval: {{ data.memcached_client.circuit_breaker_interval | default('10s') }}
-    max_item_size: {{ data.memcached_client.circuit_breaker_interval | default('0') }}
+  timeout: {{ data.memcached_client.timeout | default('100ms') }}
+  max_idle_conns: {{ data.memcached_client.max_idle_conns | default('16') }}
+  update_interval: {{ data.memcached_client.update_interval | default('1m') }}
+  consistent_hash: {{ data.memcached_client.consistent_hash | default('true') | bool | ternary('true','false') }}
+  circuit_breaker_consecutive_failures: {{ data.memcached_client.circuit_breaker_consecutive_failures | default('10') }}
+  circuit_breaker_timeout: {{ data.memcached_client.circuit_breaker_timeout | default('10s') }}
+  circuit_breaker_interval: {{ data.memcached_client.circuit_breaker_interval | default('10s') }}
+  max_item_size: {{ data.memcached_client.circuit_breaker_interval | default('0') }}
   {% endif %}
   {# Redis Server or Cluster configuration endpoint to use for caching #}
   {% if data.redis is defined and
         data.redis | count > 0 %}
-  redis:
+redis:
     {% if data.redis.endpoint is defined and
           data.redis.endpoint | string | length > 0 %}
-    endpoint: {{ data.redis.endpoint }}
+  endpoint: {{ data.redis.endpoint }}
     {% endif %}
     {% if data.redis.master_name is defined and
           data.redis.master_name | string | length > 0 %}
-    master_name: {{ data.redis.master_name }}
+  master_name: {{ data.redis.master_name }}
     {% endif %}
-    timeout: {{ data.redis.timeout | default('500ms') }}
-    expiration: {{ data.redis.expiration | default('0s') }}
-    db: {{ data.redis.db | default('0') }}
-    pool_size: {{ data.redis.pool_size | default('0') }}
+  timeout: {{ data.redis.timeout | default('500ms') }}
+  expiration: {{ data.redis.expiration | default('0s') }}
+  db: {{ data.redis.db | default('0') }}
+  pool_size: {{ data.redis.pool_size | default('0') }}
     {% if data.redis.username is defined and
           data.redis.username | string | length > 0 %}
-    username: {{ data.redis.username }}
+  username: {{ data.redis.username }}
     {% endif %}
     {% if data.redis.password is defined and
           data.redis.password | string | length > 0 %}
-    password: {{ data.redis.password }}
+  password: {{ data.redis.password }}
     {% endif %}
     {% if data.redis.tls_enabled is defined and
           data.redis.tls_enabled %}
-    tls_enabled: true
-    tls_insecure_skip_verify: {{ data.redis.tls_insecure_skip_verify | default('false') | bool | ternary('true','false') }}
+  tls_enabled: true
+  tls_insecure_skip_verify: {{ data.redis.tls_insecure_skip_verify | default('false') | bool | ternary('true','false') }}
     {% endif %}
-    idle_timeout: {{ data.redis.idle_timeout | default('0s') }}
-    max_connection_age: {{ data.redis.max_connection_age | default('0s') }}
+  idle_timeout: {{ data.redis.idle_timeout | default('0s') }}
+  max_connection_age: {{ data.redis.max_connection_age | default('0s') }}
   {% endif %}
 {% endif %}
 {# .... #}
@@ -406,40 +360,26 @@ configs:
 {% if not data %}
 # not provision_config data defined
 {% else %}
-  {% if data.enable_ondemand_throughput_mode is defined %}
-enable_ondemand_throughput_mode: {{ data.enable_ondemand_throughput_mode | bool | ternary('true','false') }}
-  {% endif %}
-  {% if data.provisioned_write_throughput is defined and
-        data.provisioned_write_throughput | string | length > 0 %}
-provisioned_write_throughput: {{ data.provisioned_write_throughput }}
-  {% endif %}
-  {% if data.provisioned_read_throughput is defined and
-        data.provisioned_read_throughput | string | length > 0 %}
-provisioned_read_throughput: {{ data.provisioned_read_throughput }}
-  {% endif %}
-
-  {% if data.enable_inactive_throughput_on_demand_mode is defined %}
-enable_inactive_throughput_on_demand_mode: {{ data.enable_inactive_throughput_on_demand_mode | bool | ternary('true','false') }}
-  {% endif %}
-  {% if data.inactive_write_throughput is defined and
-        data.inactive_write_throughput | string | length > 0 %}
-inactive_write_throughput: {{ data.inactive_write_throughput }}
-  {% endif %}
-  {% if data.inactive_read_throughput is defined and
-        data.inactive_read_throughput | string | length > 0 %}
-inactive_read_throughput: {{ data.inactive_read_throughput }}
-  {% endif %}
+  {% set valid_keys = [
+    "enable_ondemand_throughput_mode","provisioned_write_throughput","provisioned_read_throughput",
+    "enable_inactive_throughput_on_demand_mode","inactive_write_throughput","inactive_read_throughput",
+    "inactive_write_scale_lastn","inactive_read_scale_lastn"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
   {% if data.write_scale is defined %}
 write_scale:
   {{ makro_auto_scaling_config(data.write_scale) }}
   {% endif %}
+
   {% if data.inactive_write_scale is defined %}
 inactive_write_scale:
   {{ makro_auto_scaling_config(data.inactive_write_scale) }}
-  {% endif %}
-  {% if data.inactive_write_scale_lastn is defined and
-        data.inactive_write_scale_lastn | string | length > 0 %}
-inactive_write_scale_lastn: {{ data.inactive_write_scale_lastn }}
   {% endif %}
   {% if data.read_scale is defined %}
 read_scale:
@@ -448,10 +388,6 @@ read_scale:
   {% if data.inactive_read_scale is defined %}
 inactive_read_scale:
   {{ makro_auto_scaling_config(data.inactive_read_scale)}}
-  {% endif %}
-  {% if data.inactive_read_scale_lastn is defined and
-        data.inactive_read_scale_lastn | string | length > 0 %}
-inactive_read_scale_lastn: {{ data.inactive_read_scale_lastn }}
   {% endif %}
 {% endif %}
 {# .... #}
@@ -691,3 +627,252 @@ http_config:
 {% endif %}
 {# .... #}
 {%- endmacro -%}
+
+{%- macro makro_tls_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not tls data defined
+{% else %}
+  {% set valid_keys = ["ca_file","cert_file","key_file","client_auth_type","client_ca_file","tls_cipher_suites","tls_min_version","server_name","insecure_skip_verify"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{#
+# Per-stream retention to apply, if the retention is enable on the compactor side.
+# Example:
+# retention_stream:
+# - selector: '{namespace="dev"}'
+#   priority: 1
+#   period: 24h
+# - selector: '{container="nginx"}'
+#   priority: 1
+#   period: 744h
+# Selector is a Prometheus labels matchers that will apply the `period` retention only if
+# the stream is matching. In case multiple stream are matching, the highest
+# priority will be picked. If no rule is matched the `retention_period` is used.
+#}
+{%- macro makro_retention_stream(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not tls data defined
+{% else %}
+  {% set valid_keys = ["period","priority"] %}
+  {% for c in data %}
+- selector: '{{ c.selector }}'
+    {% for k, v in c.items() %}
+      {% if k in valid_keys %}
+  {{ k }}: {{ v }}
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{#
+  Custom HTTP headers to be sent along with each remote write request.
+  Be aware that headers that are set by Loki itself can't be overwritten.
+#}
+{%- macro makro_headers(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not headers data defined
+{% else %}
+  {% for k, v in c.items() %}
+{{ k }}: {{ v }}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{#
+  List of alert relabel configs
+# TODO
+# missing valid documentation or examples
+#}
+{%- macro makro_relabel_configs(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not relabel_configs data defined
+{% else %}
+# TODO
+# missing valid documentation or examples
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#remote_write_client_config #}
+{%- macro makro_remote_write_client_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not remote_write_client_config data defined
+{% else %}
+  {% set valid_keys = ["url","remote_timeout","name","proxy_url","follow_redirects"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if data.headers is defined %}
+headers:
+  {{ makro_headers(data.headers | default({})) | indent(2, False) }}
+  {% endif %}
+  {% if data.write_relabel_configs is defined %}
+write_relabel_configs:
+  {{ makro_relabel_configs(data.write_relabel_configs | default({})) | indent(2, False) }}
+  {% endif %}
+  {#
+   # Sets the `Authorization` header on every remote write request with the configured username and password.
+   # password and password_file are mutually exclusive.
+  #}
+  {% if data.basic_auth is defined and
+        (
+          ((data.basic_auth.username and data.basic_auth.username | string | length > 0) and
+          (data.basic_auth.password and data.basic_auth.password | string | length > 0)) or
+          (data.basic_auth.password_file and data.basic_auth.password_file | string | length > 0)
+        )
+  %}
+basic_auth:
+    {% if data.basic_auth.password_file and data.basic_auth.password_file | string | length > 0 %}
+  password_file: {{ data.basic_auth.password_file }}
+    {% else %}
+  username: {{ data.basic_auth.username }}
+  password: {{ data.basic_auth.password }}
+    {% endif %}
+  {% endif %}
+  {#
+   # Optional `Authorization` header configuration.
+   # Sets the credentials to the credentials read from the configured file.
+   # `credentials` and `credentials_file` are mutually exclusive.
+  #}
+  {% if data.authorization is defined and
+        (
+          (data.authorization.type and data.authorization.type | string | length > 0) and
+          (data.authorization.credentials and data.authorization.credentials | string | length > 0) or
+          (data.authorization.credentials_file and data.authorization.credentials_file | string | length > 0)
+        )
+  %}
+authorization:
+  type: {{ data.authorization.type }}
+    {% if data.authorization.credentials_file and data.authorization.credentials_file | string | length > 0 %}
+  credentials_file: {{ data.authorization.credentials_file }}
+    {% else %}
+  credentials: {{ data.authorization.credentials }}
+    {% endif %}
+  {% endif %}
+  {% if data.sigv4 is defined %}
+sigv4:
+  {{ makro_sigv4(data.sigv4 | default({})) | indent(2, False) }}
+  {% endif %}
+  {% if data.tls_config is defined %}
+tls_config:
+  {{ makro_tls_config(data.tls_config) | indent(2, False) }}
+  {% endif %}
+  {% if data.queue_config is defined %}
+    {% set valid_keys = ["capacity","max_shards","min_shards","max_samples_per_send","batch_send_deadline","min_backoff","max_backoff","retry_on_http_429"] %}
+queue_config:
+    {% for key, v in data.queue_config.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+  {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#alertmanager_config #}
+{%- macro makro_alertmanager_config(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not alertmanager_config data defined
+{% else %}
+  {% set valid_keys = [
+    "alertmanager_url","enable_alertmanager_discovery",
+    "alertmanager_refresh_interval","enable_alertmanager_v2",
+    "notification_queue_capacity","notification_timeout",
+  ] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if data.alertmanager_client is defined %}
+alertmanager_client:
+    {% if data.alertmanager_client.basic_auth_username is defined and
+          data.alertmanager_client.basic_auth_username | string | length > 0 %}
+  basic_auth_username: {{ data.alertmanager_client.basic_auth_username }}
+    {% endif %}
+    {% if data.alertmanager_client.basic_auth_password is defined and
+          data.alertmanager_client.basic_auth_password | string | length > 0 %}
+  basic_auth_password: {{ data.alertmanager_client.basic_auth_password }}
+    {% endif %}
+    {#
+     # Optional `Authorization` header configuration.
+     # Sets the credentials to the credentials read from the configured file.
+     # `credentials` and `credentials_file` are mutually exclusive.
+    #}
+    {% if data.alertmanager_client.authorization is defined and
+          (
+            (data.alertmanager_client.authorization.type and data.alertmanager_client.authorization.type | string | length > 0) and
+            (data.alertmanager_client.authorization.credentials and data.alertmanager_client.authorization.credentials | string | length > 0) or
+            (data.alertmanager_client.authorization.credentials_file and data.alertmanager_client.authorization.credentials_file | string | length > 0)
+          )
+    %}
+  authorization:
+    type: {{ data.alertmanager_client.authorization.type }}
+      {% if data.alertmanager_client.authorization.credentials_file and data.alertmanager_client.authorization.credentials_file | string | length > 0 %}
+    credentials_file: {{ data.alertmanager_client.authorization.credentials_file }}
+      {% else %}
+    credentials: {{ data.alertmanager_client.authorization.credentials }}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  {% if data.alert_relabel_configs is defined %}
+alert_relabel_configs:
+  {{ makro_relabel_configs(data.alert_relabel_configs) | indent(2, False) }}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+{# https://grafana.com/docs/loki/latest/configuration/#sigv4_config #}
+{%- macro makro_sigv4(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not sigv4 data defined
+{% else %}
+  {% set valid_keys = ["region","access_key","secret_key","profile","role_arn"] %}
+  {% for key, v in data.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+{{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
+
+
+

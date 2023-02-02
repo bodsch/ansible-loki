@@ -10,21 +10,19 @@ ingester_client:
   {% if loki_config_ingester_client.pool_config is defined and
         loki_config_ingester_client.pool_config | count > 0 %}
   pool_config:
-    {% if loki_config_ingester_client.pool_config.health_check_ingesters is defined %}
-    health_check_ingesters: {{ loki_config_ingester_client.pool_config.health_check_ingesters | bool | ternary('true','false') }}
-    {% endif %}
-    {% if loki_config_ingester_client.pool_config.client_cleanup_period is defined and
-          loki_config_ingester_client.pool_config.client_cleanup_period | string | length > 0 %}
-    client_cleanup_period: {{ loki_config_ingester_client.pool_config.client_cleanup_period }}
-    {% endif %}
-    {% if loki_config_ingester_client.pool_config.remote_timeout is defined and
-          loki_config_ingester_client.pool_config.remote_timeout | string | length > 0 %}
-    remote_timeout: {{ loki_config_ingester_client.pool_config.remote_timeout }}
-    {% endif %}
+    {% set valid_keys = ["health_check_ingesters","client_cleanup_period","remote_timeout"] %}
+    {% for key, v in loki_config_ingester_client.pool_config.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
   {% endif %}
   {% if loki_config_ingester_client.grpc_client_config is defined and
         loki_config_ingester_client.grpc_client_config | count > 0 %}
   grpc_client_config:
-    {{ tpl.makro_grpc_client_config(loki_config_ingester_client.grpc_client_config) | indent(4, False) }}
+    {{ tpl.makro_grpc_client_config(loki_config_ingester_client.grpc_client_config) | indent(4, False) -}}
   {% endif %}
 {% endif %}

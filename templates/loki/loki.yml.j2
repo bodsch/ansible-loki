@@ -23,7 +23,6 @@ auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', '
 {% include('loki.d/chunk_store_config.j2') -%}
 {% include('loki.d/schema_config.j2') -%}
 {% include('loki.d/compactor.j2') -%}
-{# TODO #}
 {% include('loki.d/limits_config.j2') -%}
 {% include('loki.d/frontend_worker.j2') -%}
 {% include('loki.d/table_manager.j2') -%}

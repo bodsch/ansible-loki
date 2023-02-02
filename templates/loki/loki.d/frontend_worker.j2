@@ -14,6 +14,6 @@ frontend_worker:
   {% if loki_config_frontend_worker.grpc_client_config is defined and
         loki_config_frontend_worker.grpc_client_config | count > 0 %}
   grpc_client_config:
-    {{ tpl.makro_grpc_client_config(loki_config_frontend_worker.grpc_client_config) | indent(4, False) }}
+    {{ tpl.makro_grpc_client_config(loki_config_frontend_worker.grpc_client_config) | indent(4, False) -}}
   {% endif %}
 {% endif %}

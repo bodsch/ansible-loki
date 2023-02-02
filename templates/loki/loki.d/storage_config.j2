@@ -17,7 +17,7 @@ storage_config:
   {% if loki_config_storage.index_queries_cache_config is defined and
         loki_config_storage.index_queries_cache_config | count > 0 %}
   index_queries_cache_config:
-    {{- tpl.makro_cache(loki_config_storage.index_queries_cache_config | default({})) | indent(2, False) -}}
+    {{ tpl.makro_cache(loki_config_storage.index_queries_cache_config | default({})) | indent(4, False) }}
   {% endif %}
   {% if loki_config_storage.aws is defined and
         loki_config_storage.aws | count > 0 %}

@@ -16,11 +16,11 @@ table_manager:
   {% if loki_config_table_manager.index_tables_provisioning is defined and
         loki_config_table_manager.index_tables_provisioning | count > 0 %}
   index_tables_provisioning:
-    {{ tpl.makro_provision_config(loki_config_table_manager.index_tables_provisioning) | indent(4, False) }}
+    {{ tpl.makro_provision_config(loki_config_table_manager.index_tables_provisioning) | indent(4, False) -}}
   {% endif %}
   {% if loki_config_table_manager.chunk_tables_provisioning is defined and
         loki_config_table_manager.chunk_tables_provisioning | count > 0 %}
   chunk_tables_provisioning:
-    {{ tpl.makro_provision_config(loki_config_table_manager.chunk_tables_provisioning) | indent(4, False) }}
+    {{ tpl.makro_provision_config(loki_config_table_manager.chunk_tables_provisioning) | indent(4, False) -}}
   {% endif %}
 {% endif %}
