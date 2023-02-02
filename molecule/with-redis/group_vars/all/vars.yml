@@ -1,10 +1,8 @@
 ---
 
-loki_version: "2.7.2"
+# loki_version: "2.7.2"
 
 loki_config_server:
-  # http_listen_address: "127.0.0.1"
-  # http_listen_port: 3100
   log_level: debug
   grpc_server_max_recv_msg_size: 8388608
   grpc_server_max_send_msg_size: 8388608
@@ -21,8 +19,6 @@ loki_config_distributor:
     heartbeat_timeout: 30s
 
 loki_config_compactor:
-  # shared_store: s3
-  # working_directory: /data/loki/compactor
   compaction_interval: 10m
   retention_enabled: true
   retention_delete_delay: 2h
@@ -81,6 +77,13 @@ loki_config_limits:
   max_query_parallelism: 900
   max_query_series: 1000
   increment_duplicate_timestamp: true
+  retention_stream:
+    - selector: '{namespace="dev"}'
+      priority: 1
+      period: 24h
+    - selector: '{container="nginx"}'
+      priority: 1
+      period: 744h
 
 loki_config_storage:
   index_cache_validity: 1m0s
@@ -90,23 +93,18 @@ loki_config_storage:
       writeback_goroutines: 20
     redis:
       endpoint: "redis:6379"
-      # db: 10
-      # max_connection_age: 10s
-    # fifocache:
-    #   max_size_bytes: 128MB
-    #   max_size_items: 100
-    #   ttl: 1h0m0s
-    #   purgeinterval: 10s
+    fifocache:
+      max_size_bytes: 128MB
+      max_size_items: 100
+      ttl: 1h0m0s
+      purgeinterval: 10s
 
 loki_config_chunk_store:
   # store for 1 year
   max_look_back_period: 8760h
   chunk_cache_config:
-    # https://grafana.com/docs/loki/latest/configuration/#cache_config
     redis:
       endpoint: "redis:6379"
-      # db: 10
-      # max_connection_age: 10s
 
 loki_config_schema:
   configs:
@@ -130,9 +128,6 @@ loki_config_common:
     filesystem:
       rules_directory: "{{ loki_storage_dir }}/rules"
       chunks_directory: "{{ loki_storage_dir }}/chunks"
-  #  azure:
-  #    max_retries: 10
-  #    account_key: ""
 
 loki_config_query_range:
   align_queries_with_step: true
