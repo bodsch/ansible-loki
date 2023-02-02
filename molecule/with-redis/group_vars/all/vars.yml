@@ -1,16 +1,27 @@
 ---
 
-# loki_version: "2.7.2"
+#default redis config
+cache_config_defaults: &CACHE_DEFAULTS
+  background:
+    writeback_goroutines: 20
+  redis:
+    endpoint: "redis:6379"
+  fifocache:
+    max_size_bytes: 128MB
+    max_size_items: 100
+    ttl: 1h0m0s
+    purgeinterval: 10s
 
 loki_config_server:
-  log_level: debug
-  grpc_server_max_recv_msg_size: 8388608
-  grpc_server_max_send_msg_size: 8388608
+  # log_level: debug
+  http_listen_address: "127.0.0.1"
+  http_listen_port: 3100
   http_server_write_timeout: 10m
   http_server_read_timeout: 10m
   http_server_idle_timeout: 10m
+  grpc_server_max_send_msg_size: 8388608
+  grpc_server_max_recv_msg_size: 8388608
   graceful_shutdown_timeout: 2m
-
 
 loki_config_distributor:
   ring:
@@ -36,14 +47,12 @@ loki_config_querier:
   max_concurrent: 20
 
 loki_config_query_scheduler:
-  instance_id: "{{ ansible_hostname }}"
-  use_scheduler_ring: true
+  # instance_id: "{{ ansible_hostname }}"
+  # use_scheduler_ring: true
   scheduler_ring:
     heartbeat_timeout: 10s
     kvstore:
       store: inmemory
-      prefix: "collectors/"
-      consul:
 
 loki_config_ingester_client:
   pool_config:
@@ -73,38 +82,21 @@ loki_config_limits:
   creation_grace_period: 1m
   enforce_metric_name: false
   reject_old_samples_max_age: 12h
-  split_queries_by_interval: 120m
   max_query_parallelism: 900
   max_query_series: 1000
   increment_duplicate_timestamp: true
-  retention_stream:
-    - selector: '{namespace="dev"}'
-      priority: 1
-      period: 24h
-    - selector: '{container="nginx"}'
-      priority: 1
-      period: 744h
 
 loki_config_storage:
-  index_cache_validity: 1m0s
+  index_cache_validity: 10m0s
   disable_broad_index_queries: true
   index_queries_cache_config:
-    background:
-      writeback_goroutines: 20
-    redis:
-      endpoint: "redis:6379"
-    fifocache:
-      max_size_bytes: 128MB
-      max_size_items: 100
-      ttl: 1h0m0s
-      purgeinterval: 10s
+    <<: *CACHE_DEFAULTS
 
 loki_config_chunk_store:
   # store for 1 year
   max_look_back_period: 8760h
   chunk_cache_config:
-    redis:
-      endpoint: "redis:6379"
+    <<: *CACHE_DEFAULTS
 
 loki_config_schema:
   configs:
@@ -133,17 +125,11 @@ loki_config_query_range:
   align_queries_with_step: true
   parallelise_shardable_queries: true
   max_retries: 5
-  split_queries_by_interval: 15m
   cache_results: true
   results_cache:
     # https://grafana.com/docs/loki/latest/configuration/#cache_config
     cache:
-      embedded_cache:
-        enabled: true
-      redis:
-        endpoint: "redis:6379"
-        # master_name: ""
-        # db: 10
+      <<: *CACHE_DEFAULTS
 
 loki_config_frontend:
   log_queries_longer_than: 10s
@@ -152,34 +138,21 @@ loki_config_frontend:
   # tail_proxy_url: "http://{{ ansible_hostname }}:3100"
 
 loki_config_frontend_worker:
-  parallelism: 2
+  parallelism: 4
   grpc_client_config:
     # 16GiB
     max_send_msg_size: 17179869184
     max_recv_msg_size: 17179869184
-  # frontend_address: "{{ ansible_hostname }}:9095"
 
-# loki_config_table_manager:
-#   index_tables_provisioning:
-#     enable_ondemand_throughput_mode: true
-#     enable_inactive_throughput_on_demand_mode: true
-#   chunk_tables_provisioning:
-#     enable_ondemand_throughput_mode: true
-#     enable_inactive_throughput_on_demand_mode: true
-#   retention_deletes_enabled: true
-#   retention_period: 8640h
-
-
-loki_config_memberlist:
-  abort_if_cluster_join_fails: false
-  # Expose this port on all distributor, ingester
-  # and querier replicas.
-  bind_port: 7946
-  join_members:
-    - "{{ ansible_hostname }}:7946"
-
-  max_join_backoff: 1m
-  max_join_retries: 10
-  min_join_backoff: 1s
+# loki_config_memberlist:
+#   abort_if_cluster_join_fails: false
+#   # Expose this port on all distributor, ingester
+#   # and querier replicas.
+#   bind_port: 7946
+#   join_members:
+#     - "{{ ansible_hostname }}:7946"
+#   max_join_backoff: 1m
+#   max_join_retries: 10
+#   min_join_backoff: 1s
 
 ...

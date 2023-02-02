@@ -2,9 +2,9 @@
 {% if loki_config_frontend | default({}) | count > 0 %}
   {%- set valid_keys = [
     "max_outstanding_per_tenant", "querier_forget_delay", "compress_responses", "downstream_url", "log_queries_longer_than",
-    "scheduler_address", "scheduler_dns_lookup_period", "scheduler_worker_concurrency", "tail_proxy_url" ] -%}
+    "scheduler_address", "scheduler_dns_lookup_period", "scheduler_worker_concurrency", "tail_proxy_url" ] %}
   {%- set valid_tls_keys = [
-    "tls_cert_path", "tls_key_path", "tls_ca_path", "tls_insecure_skip_verify", "tls_cipher_suites", "tls_min_version" ] -%}
+    "tls_cert_path", "tls_key_path", "tls_ca_path", "tls_insecure_skip_verify", "tls_cipher_suites", "tls_min_version" ] %}
 
 frontend:
   {% for key, v in loki_config_frontend.items() %}

@@ -3,18 +3,20 @@
   {% import 'jinja_macros.j2' as tpl with context %}
 
 distributor:
-  {% if loki_config_distributor.rate_store is defined and
-        loki_config_distributor.rate_store | count > 0 %}
+  {% if loki_main_version is version_compare('2.7', '>=' ) %}
+    {% if loki_config_distributor.rate_store is defined and
+          loki_config_distributor.rate_store | count > 0 %}
   rate_store:
-    {% set valid_keys = ["max_request_parallelism","stream_rate_update_interval","ingester_request_timeout"] %}
-    {% for key, v in loki_config_distributor.rate_store.items() %}
-      {% if key in valid_keys %}
-        {% set value = v | loki_value %}
-        {% if value %}
+      {% set valid_keys = ["max_request_parallelism","stream_rate_update_interval","ingester_request_timeout"] %}
+      {% for key, v in loki_config_distributor.rate_store.items() %}
+        {% if key in valid_keys %}
+          {% set value = v | loki_value %}
+          {% if value %}
     {{ key }}: {{ value }}
+          {% endif %}
         {% endif %}
-      {% endif %}
-    {% endfor %}
+      {% endfor %}
+    {% endif %}
   {% endif %}
   ring:
     {{ tpl.makro_rings(loki_config_distributor.ring) | indent(4, False) -}}

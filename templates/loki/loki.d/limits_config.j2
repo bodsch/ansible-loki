@@ -30,7 +30,9 @@
   {% endif %}
 
 limits_config:
+  {% if loki_main_version is version_compare('2.7', '>=' ) %}
   deletion_mode: {{ _deletion_mode }}
+  {% endif %}
   {% for key, v in loki_config_limits.items() %}
     {% if key in valid_keys %}
       {% set value = v | loki_value %}

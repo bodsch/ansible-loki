@@ -93,6 +93,7 @@ loki_defaults_config_distributor:
         mirror_timeout: 2s
         secondary: ""
         primary: ""
+  # version > 2.7
   rate_store:
     max_request_parallelism: 200
     stream_rate_update_interval: 1s
