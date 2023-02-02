@@ -1,5 +1,151 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#ruler #}
 {% if loki_config_ruler | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 ruler:
-  {{ loki_config_ruler | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_ruler.ring is defined %}
+  ring:
+    {{ tpl.makro_rings(loki_config_ruler.ring | default({})) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_ruler.ruler_client is defined %}
+  ruler_client:
+    {{ tpl.makro_tls_config(loki_config_ruler.ruler_client | default({})) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_ruler.storage is defined %}
+  storage:
+    {% set _storage_type = "local" %}
+    {% if loki_config_ruler.storage.type is defined and
+          loki_config_ruler.storage.type in ["azure", "gcs", "s3", "swift", "local", "bos"] %}
+      {% set _storage_type = loki_config_ruler.storage.type %}
+    {% endif %}
+    type: {{ _storage_type }}
+    {% if _storage_type == "azure" and
+          loki_config_ruler.storage.azure is defined and
+          loki_config_ruler.storage.azure | count > 0 %}
+    azure:
+      {{ tpl.makro_storage_config_azure(loki_config_ruler.storage.azure) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "gcs" and
+          loki_config_ruler.storage.gcs is defined and
+          loki_config_ruler.storage.gcs | count > 0 %}
+    gcs:
+      {{ tpl.makro_storage_config_gcs(loki_config_ruler.storage.gcs) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "s3" and
+          loki_config_ruler.storage.s3 is defined and
+          loki_config_ruler.storage.s3 | count > 0 %}
+    s3:
+      {{ tpl.makro_storage_config_s3(loki_config_ruler.storage.s3) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "swift" and
+          loki_config_ruler.storage.swift is defined and
+          loki_config_ruler.storage.swift | count > 0 %}
+    swift:
+      {{ tpl.makro_storage_config_swift(loki_config_ruler.storage.swift) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "bos" and
+          loki_config_ruler.storage.bos is defined and
+          loki_config_ruler.storage.bos | count > 0 %}
+    bos:
+      {{ tpl.makro_storage_config_bos(loki_config_ruler.storage.bos) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "hedging" and
+          loki_config_ruler.storage.hedging is defined and
+          loki_config_ruler.storage.hedging | count > 0 %}
+    hedging:
+      {{ tpl.makro_storage_config_hedging(loki_config_ruler.storage.hedging) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "local" and
+          loki_config_ruler.storage.local is defined and
+          loki_config_ruler.storage.local | count > 0 %}
+    local:
+      {{ tpl.makro_storage_config_local(loki_config_ruler.storage.local) | indent(6, False) -}}
+    {% endif %}
+  {% endif %}
+  {# Remote-write configuration to send rule samples to a Prometheus remote-write endpoint. #}
+  {% if loki_config_ruler.remote_write is defined and
+        loki_config_ruler.remote_write.enabled | default('false') %}
+  remote_write:
+    enabled: {{ loki_config_ruler.remote_write.enabled | default('false') | bool | ternary('true','false') }}
+    config_refresh_period: {{ loki_config_ruler.remote_write.config_refresh_period | default('10s') }}
+    {% if loki_config_ruler.remote_write.client is defined and
+          loki_config_ruler.remote_write.client | count > 0 %}
+    # Deprecated: Use `clients` instead
+    client:
+      {{ tpl.makro_remote_write_client_config(loki_config_ruler.remote_write.client) | indent(6, False) }}
+    {% endif %}
+    {% if loki_config_ruler.remote_write.clients is defined and
+          loki_config_ruler.remote_write.clients | count > 0 %}
+    clients:
+      {% for key, values in loki_config_ruler.remote_write.clients.items() %}
+      # [<string>: <remote_write_client_config>]
+      {{ key }}:
+        {{ tpl.makro_remote_write_client_config(values) | indent(8, False) }}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  {# wal #}
+  {% if loki_config_ruler.wal is defined and
+        loki_config_ruler.wal | count > 0 %}
+  wal:
+    {% set _wal_dir = loki_storage_dir ~ "/ruler-wal" %}
+    {% if loki_config_ruler.wal.dir is defined and
+          loki_config_ruler.wal.dir | string | length > 0 %}
+      {% set _wal_dir = loki_config_ruler.wal.dir %}
+    {% endif %}
+    dir: {{ _wal_dir }}
+    {% set valid_keys = ["truncate_frequency", "min_age", "max_age"] %}
+    {% for key, v in loki_config_ruler.wal.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {# wal_cleaner #}
+  {% if loki_config_ruler.wal_cleaner is defined and
+        loki_config_ruler.wal_cleaner | count > 0 %}
+  wal_cleaner:
+    {% set valid_keys = ["min_age", "period"] %}
+    {% for key, v in loki_config_ruler.wal_cleaner.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {# alertmanager_client #}
+  {% if loki_config_ruler.alertmanager_client is defined and
+        loki_config_ruler.alertmanager_client | count > 0 %}
+  alertmanager_client:
+    {{ tpl.makro_alertmanager_client(loki_config_ruler.alertmanager_client) | indent(4, False) }}
+  {% endif %}
+  {% set valid_keys = [
+    "external_url", "evaluation_interval", "poll_interval", "rule_path", "alertmanager_url",
+    "enable_alertmanager_discovery", "alertmanager_refresh_interval", "enable_alertmanager_v2",
+    "notification_queue_capacity", "notification_timeout", "for_outage_tolerance", "for_grace_period",
+    "resend_delay", "enable_sharding", "search_pending_for"
+  ] %}
+  {% for key, v in loki_config_ruler.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_ruler.external_labels is defined and
+        loki_config_ruler.external_labels | count > 0 %}
+  external_labels:
+    {{ tpl.makro_external_labels(loki_config_ruler.external_labels) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_ruler.alert_relabel_configs is defined and
+        loki_config_ruler.alert_relabel_configs | count > 0 %}
+  alert_relabel_configs:
+    {{ tpl.makro_relabel_configs(loki_config_ruler.alert_relabel_configs) | indent(4, False) }}
+  {% endif %}
 {% endif %}

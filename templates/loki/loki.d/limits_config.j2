@@ -1,5 +1,86 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#limits_config #}
 {% if loki_config_limits | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+  {% set valid_keys = [
+    "cardinality_limit","creation_grace_period",
+    "enforce_metric_name","increment_duplicate_timestamp","ingestion_burst_size_mb",
+    "ingestion_rate_mb","ingestion_rate_strategy","max_cache_freshness_per_query",
+    "max_chunks_per_query","max_concurrent_tail_requests","max_entries_limit_per_query",
+    "max_global_streams_per_user","max_label_name_length","max_label_names_per_series",
+    "max_label_value_length","max_line_size","max_line_size_truncate","max_queriers_per_tenant",
+    "max_query_length","max_query_parallelism","max_query_series","max_streams_matchers_per_query",
+    "max_streams_per_user","min_sharding_lookback","per_stream_rate_limit","per_stream_rate_limit_burst",
+    "per_tenant_override_config","per_tenant_override_period","reject_old_samples",
+    "reject_old_samples_max_age","retention_period",
+    "ruler_evaluation_delay_duration","ruler_max_rule_groups_per_tenant","ruler_max_rules_per_rule_group",
+    "unordered_writes","max_query_lookback","ruler_remote_write_disabled"] -%}
+  {% set deprecated_keys = [
+    "allow_deletes",
+    "ruler_remote_write_url",
+    "ruler_remote_write_timeout",
+    "ruler_remote_write_queue_capacity","ruler_remote_write_queue_min_shards",
+    "ruler_remote_write_queue_max_shards","ruler_remote_write_queue_max_samples_per_send",
+    "ruler_remote_write_queue_batch_send_deadline","ruler_remote_write_queue_min_backoff",
+    "ruler_remote_write_queue_max_backoff","split_queries_by_interval"
+  ] -%}
+  {% set _deletion_mode = "filter-and-delete" %}
+  {% if loki_config_limits.deletion_mode is defined and
+        loki_config_limits.deletion_mode in ["disabled", "filter-only", "filter-and-delete"] %}
+    {% set _deletion_mode = loki_config_limits.deletion_mode %}
+  {% endif %}
+
 limits_config:
-  {{ loki_config_limits | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_main_version is version_compare('2.7', '>=' ) %}
+  deletion_mode: {{ _deletion_mode }}
+  {% endif %}
+  {% for key, v in loki_config_limits.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_limits.retention_stream is defined %}
+  retention_stream:
+    {{ tpl.makro_retention_stream(loki_config_limits.retention_stream) | indent(4, False) -}}
+  {% endif %}
+  {# deprecated values #}
+  {% for key, v in loki_config_limits.items() %}
+    {% if key in deprecated_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  # '{{ key }}' is deprecated! please read https://grafana.com/docs/loki/latest/configuration/#limits_config!
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_limits.ruler_remote_write_config is defined %}
+  ruler_remote_write_config:
+    {{ tpl.makro_remote_write_client_config(loki_config_limits.ruler_remote_write_config) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_limits.ruler_remote_write_headers is defined %}
+  ruler_remote_write_headers:
+    {{ tpl.makro_headers(loki_config_limits.ruler_remote_write_headers) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_limits.ruler_remote_write_relabel_configs is defined %}
+  ruler_remote_write_relabel_configs:
+    {{ tpl.makro_relabel_configs(loki_config_limits.ruler_remote_write_relabel_configs) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_limits.ruler_alertmanager_config is defined %}
+  ruler_alertmanager_config:
+    {{ tpl.makro_alertmanager_config(loki_config_limits.ruler_remote_write_relabel_configs) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_limits.shard_streams is defined %}
+    {% set valid_keys = ["enabled","logging_enabled","desired_rate"] %}
+  shard_streams:
+    {% for key, v in loki_config_limits.shard_streams.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 {% endif %}

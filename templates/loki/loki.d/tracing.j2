@@ -1,5 +1,8 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#tracing #}
 {% if loki_config_tracing | default({}) | count > 0 %}
+
 tracing:
-  {{ loki_config_tracing | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_tracing.enabled is defined %}
+  enabled: {{ loki_config_tracing.enabled | default('false') | bool | ternary('true','false') }}
+  {% endif %}
 {% endif %}

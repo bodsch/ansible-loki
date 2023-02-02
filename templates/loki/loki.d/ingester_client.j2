@@ -1,5 +1,28 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#ingester_client #}
 {% if loki_config_ingester_client | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 ingester_client:
-  {{ loki_config_ingester_client | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_ingester_client.remote_timeout is defined and
+        loki_config_ingester_client.remote_timeout | string | length > 0 %}
+  remote_timeout: {{ loki_config_ingester_client.remote_timeout }}
+  {% endif %}
+  {% if loki_config_ingester_client.pool_config is defined and
+        loki_config_ingester_client.pool_config | count > 0 %}
+  pool_config:
+    {% set valid_keys = ["health_check_ingesters","client_cleanup_period","remote_timeout"] %}
+    {% for key, v in loki_config_ingester_client.pool_config.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if loki_config_ingester_client.grpc_client_config is defined and
+        loki_config_ingester_client.grpc_client_config | count > 0 %}
+  grpc_client_config:
+    {{ tpl.makro_grpc_client_config(loki_config_ingester_client.grpc_client_config) | indent(4, False) -}}
+  {% endif %}
 {% endif %}

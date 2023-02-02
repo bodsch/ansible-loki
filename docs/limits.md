@@ -1,6 +1,8 @@
 
 # `loki_config_limits`
 
+The limits_config block configures global and per-tenant limits in Loki.
+
 [upstream configuration](https://grafana.com/docs/loki/latest/configuration/#limits_config)
 
 ## defaults

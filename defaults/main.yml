@@ -1,6 +1,6 @@
 ---
 
-loki_version: "2.6.1"
+loki_version: "2.7.2"
 loki_release_download_url: https://github.com/grafana/loki/releases
 
 loki_system_user: loki
@@ -9,6 +9,10 @@ loki_config_dir: /etc/loki
 loki_storage_dir: /var/lib/loki
 
 loki_direct_download: false
+
+loki_service:
+  restart: false
+  max_runtime: 7d
 
 # A comma-separated list of components to run.
 # The default value "all" runs Loki in single binary mode.

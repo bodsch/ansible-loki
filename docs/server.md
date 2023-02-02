@@ -1,6 +1,8 @@
 
 # `loki_config_server`
 
+The server block configures the HTTP and gRPC server communication of the launched service(s).
+
 [upstream configuration](https://grafana.com/docs/loki/latest/configuration/#server_config)
 
 ## defaults

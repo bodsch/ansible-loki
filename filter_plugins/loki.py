@@ -17,6 +17,8 @@ class FilterModule(object):
     def filters(self):
         return {
             'loki_checksum': self.checksum,
+            'loki_tls_certificates': self.tls_certificates,
+            'loki_value': self.value,
         }
 
     def checksum(self, data, program, os, arch):
@@ -36,3 +38,33 @@ class FilterModule(object):
         display.v("= checksum: {}".format(checksum))
 
         return checksum
+
+    def tls_certificates(self, data):
+        """
+        """
+        if isinstance(data, dict):
+            cert_file = data.get("cert_file", None)
+            key_file = data.get("key_file", None)
+
+            if cert_file and key_file:
+                return True
+
+        return False
+
+    def value(self, data):
+        """
+        """
+        result = None
+        # display.v(f"value({data} {type(data)})")
+
+        if isinstance(data, bool):
+            result = 'true' if data else 'false'
+        elif isinstance(data, str):
+            if len(data) > 0:
+                result = data
+        elif isinstance(data, int):
+            result = data
+
+        # display.v(f"= result: {result} {type(result)}")
+
+        return result

@@ -30,6 +30,7 @@
     - "{{ loki_storage_dir }}/boltdb-shipper-cache"
     - "{{ loki_storage_dir }}/rules"
     - "{{ loki_storage_dir }}/rules-scratch"
+    - "{{ loki_storage_dir }}/ruler-wal"
 
 - name: create systemd service unit
   ansible.builtin.template:

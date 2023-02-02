@@ -1,5 +1,7 @@
-
+{# #}
 {% if loki_config_query_range | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 query_range:
-  {{ loki_config_query_range | to_nice_yaml(indent=2) | indent(2, False) }}
+  {{ tpl.makro_query_range(loki_config_query_range) | indent(2, False) -}}
 {% endif %}

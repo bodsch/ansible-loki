@@ -1,5 +1,50 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#server #}
 {% if loki_config_server | default({}) | count > 0 %}
+  {% set _log_level = "info" %}
+  {% if loki_config_server.log_level is defined and
+        loki_config_server.log_level in ["debug", "info", "warn", "error"] %}
+    {% set _log_level = loki_config_server.log_level %}
+  {% endif %}
+  {%- set valid_http_keys = [
+    "register_instrumentation", "graceful_shutdown_timeout",
+    "http_listen_address", "http_listen_port", "http_path_prefix",
+    "http_server_read_timeout", "http_server_write_timeout", "http_server_idle_timeout", "tail_proxy_url" ] -%}
+  {%- set valid_grpc_keys = [
+    "grpc_listen_address", "grpc_listen_port", "grpc_server_max_recv_msg_size",
+    "grpc_server_max_send_msg_size", "grpc_server_max_concurrent_streams" ] -%}
+
 server:
-  {{ loki_config_server | to_nice_yaml(indent=2) | indent(2, False) }}
+  log_level: {{ _log_level }}
+  {# http  #}
+  {% for key, v in loki_config_server.items() %}
+    {% if key in valid_http_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {#   #}
+  {% if loki_config_server.http_tls_config is defined and
+        loki_config_server.http_tls_config | count > 0 and
+        loki_config_server.http_tls_config | loki_tls_certificates %}
+  http_tls_config:
+    {{ tpl.makro_tls_config(loki_config_server.http_tls_config) | indent(4, False) -}}
+  {% endif %}
+  {# grpc #}
+  {% for key, v in loki_config_server.items() %}
+    {% if key in valid_grpc_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {#   #}
+  {% if loki_config_server.grpc_tls_config is defined and
+        loki_config_server.grpc_tls_config | count > 0 and
+        loki_config_server.grpc_tls_config | loki_tls_certificates %}
+  grpc_tls_config:
+    {{ tpl.makro_tls_config(loki_config_server.grpc_tls_config) | indent(4, False) -}}
+  {% endif %}
 {% endif %}

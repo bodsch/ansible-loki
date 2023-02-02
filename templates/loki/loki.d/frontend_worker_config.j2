@@ -1,6 +1,0 @@
-
-{% if loki_config_frontend_worker | default({}) | count > 0 %}
-# loki 2.3
-frontend_worker_config:
-  {{ loki_config_frontend_worker | to_nice_yaml(indent=2) | indent(2, False) }}
-{% endif %}

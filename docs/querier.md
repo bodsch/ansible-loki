@@ -1,7 +1,9 @@
 
 # `loki_config_querier`
 
-[upstream configuration](https://grafana.com/docs/loki/latest/configuration/#querier_config)
+The querier block configures the Loki Querier.
+
+[upstream configuration](https://grafana.com/docs/loki/latest/configuration/#querier)
 
 ## defaults
 

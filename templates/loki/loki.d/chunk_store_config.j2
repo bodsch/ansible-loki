@@ -1,5 +1,25 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#chunk_store_config #}
 {% if loki_config_chunk_store | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+  {%- set valid_keys = [
+    "max_look_back_period","cache_lookups_older_than"]
+  %}
+
 chunk_store_config:
-  {{ loki_config_chunk_store | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% for key, v in loki_config_chunk_store.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_chunk_store.write_dedupe_cache_config is defined %}
+  write_dedupe_cache_config:
+    {{ tpl.makro_cache(loki_config_chunk_store.write_dedupe_cache_config | default({})) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_chunk_store.chunk_cache_config is defined %}
+  chunk_cache_config:
+    {{ tpl.makro_cache(loki_config_chunk_store.chunk_cache_config | default({})) | indent(4, False) }}
+  {% endif %}
 {% endif %}

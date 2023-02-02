@@ -1,6 +1,8 @@
 
 # `loki_config_ingester`
 
+The ingester block configures the Loki Ingesters.
+
 [upstream configuration](https://grafana.com/docs/loki/latest/configuration/#ingester_config)
 
 ## defaults

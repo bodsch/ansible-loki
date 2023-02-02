@@ -1,5 +1,220 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#storage_config #}
 {% if loki_config_storage | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 storage_config:
-  {{ loki_config_storage | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_storage.index_cache_validity is defined and
+        loki_config_storage.index_cache_validity | string | length > 0 %}
+  index_cache_validity: {{ loki_config_storage.index_cache_validity }}
+  {% endif %}
+  {% if loki_config_storage.disable_broad_index_queries is defined %}
+  disable_broad_index_queries: {{ loki_config_storage.disable_broad_index_queries | bool | ternary('true','false') }}
+  {% endif %}
+  {% if loki_config_storage.max_chunk_batch_size is defined and
+        loki_config_storage.max_chunk_batch_size | string | length > 0 %}
+  max_chunk_batch_size: {{ loki_config_storage.max_chunk_batch_size }}
+  {% endif %}
+  {% if loki_config_storage.index_queries_cache_config is defined and
+        loki_config_storage.index_queries_cache_config | count > 0 %}
+  index_queries_cache_config:
+    {{ tpl.makro_cache(loki_config_storage.index_queries_cache_config | default({})) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_storage.aws is defined and
+        loki_config_storage.aws | count > 0 %}
+    {% set valid_keys = ["s3","s3forcepathstyle","bucketnames","endpoint","region","access_key_id","secret_access_key","insecure","sse_encryption"] %}
+  aws:
+    {% for key, v in loki_config_storage.aws.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if loki_config_storage.aws.http_config is defined and
+          loki_config_storage.aws.http_config | count > 0 %}
+    http_config:
+      {% if loki_config_storage.aws.http_config.idle_conn_timeout is defined and
+            loki_config_storage.aws.http_config.idle_conn_timeout | string | length > 0 %}
+      idle_conn_timeout: {{ loki_config_storage.aws.http_config.idle_conn_timeout }}
+      {% endif %}
+      {% if loki_config_storage.aws.http_config.response_header_timeout is defined and
+            loki_config_storage.aws.http_config.response_header_timeout | string | length > 0 %}
+      response_header_timeout: {{ loki_config_storage.aws.http_config.response_header_timeout }}
+      {% endif %}
+      {% if loki_config_storage.aws.http_config.insecure_skip_verify is defined %}
+      insecure_skip_verify: {{ loki_config_storage.aws.http_config.insecure_skip_verify | bool | ternary('true','false') }}
+      {% endif %}
+      {% if loki_config_storage.aws.http_config.ca_file is defined and
+            loki_config_storage.aws.http_config.ca_file | string | length > 0 %}
+      ca_file: {{ loki_config_storage.aws.http_config.ca_file }}
+      {% endif %}
+    {% endif %}
+    {% if loki_config_storage.aws.backoff_config is defined and
+          loki_config_storage.aws.backoff_config | count > 0 %}
+    backoff_config:
+      {% if loki_config_storage.aws.backoff_config.min_period is defined and
+            loki_config_storage.aws.backoff_config.min_period | string | length > 0 %}
+      min_period: {{ loki_config_storage.aws.backoff_config.min_period }}
+      {% endif %}
+      {% if loki_config_storage.aws.backoff_config.max_period is defined and
+            loki_config_storage.aws.backoff_config.max_period | string | length > 0 %}
+      max_period: {{ loki_config_storage.aws.backoff_config.max_period }}
+      {% endif %}
+      {% if loki_config_storage.aws.backoff_config.max_retries is defined and
+            loki_config_storage.aws.backoff_config.max_retries | string | length > 0 %}
+      max_retries: {{ loki_config_storage.aws.backoff_config.max_retries }}
+      {% endif %}
+    {% endif %}
+    {% if loki_config_storage.aws.dynamodb is defined and
+          loki_config_storage.aws.dynamodb | count > 0 %}
+    dynamodb:
+      {% if loki_config_storage.aws.dynamodb.dynamodb_url is defined and
+            loki_config_storage.aws.dynamodb.dynamodb_url | string | length > 0 %}
+      dynamodb_url: {{ loki_config_storage.aws.dynamodb.dynamodb_url }}
+      {% endif %}
+      {% if loki_config_storage.aws.dynamodb.api_limit is defined and
+            loki_config_storage.aws.dynamodb.api_limit | string | length > 0 %}
+      api_limit: {{ loki_config_storage.aws.dynamodb.api_limit }}
+      {% endif %}
+      {% if loki_config_storage.aws.dynamodb.throttle_limit is defined and
+            loki_config_storage.aws.dynamodb.throttle_limit | string | length > 0 %}
+      throttle_limit: {{ loki_config_storage.aws.dynamodb.throttle_limit }}
+      {% endif %}
+      {% if loki_config_storage.aws.dynamodb.chunk_gang_size is defined and
+            loki_config_storage.aws.dynamodb.chunk_gang_size | string | length > 0 %}
+      chunk_gang_size: {{ loki_config_storage.aws.dynamodb.chunk_gang_size }}
+      {% endif %}
+      {% if loki_config_storage.aws.dynamodb.chunk_get_max_parallelism is defined and
+            loki_config_storage.aws.dynamodb.chunk_get_max_parallelism | string | length > 0 %}
+      chunk_get_max_parallelism: {{ loki_config_storage.aws.dynamodb.chunk_get_max_parallelism }}
+      {% endif %}
+      {% if loki_config_storage.aws.dynamodb.metrics is defined and
+            loki_config_storage.aws.dynamodb.metrics | count > 0 %}
+      metrics:
+        {% if loki_config_storage.aws.dynamodb.metrics.url is defined and
+              loki_config_storage.aws.dynamodb.metrics.url | string | length > 0 %}
+        url: {{ loki_config_storage.aws.dynamodb.metrics.url }}
+        {% endif %}
+        {% if loki_config_storage.aws.dynamodb.metrics.target_queue_length is defined and
+              loki_config_storage.aws.dynamodb.metrics.target_queue_length | string | length > 0 %}
+        target_queue_length: {{ loki_config_storage.aws.dynamodb.metrics.target_queue_length }}
+        {% endif %}
+        {% if loki_config_storage.aws.dynamodb.metrics.scale_up_factor is defined and
+              loki_config_storage.aws.dynamodb.metrics.scale_up_factor | string | length > 0 %}
+        scale_up_factor: {{ loki_config_storage.aws.dynamodb.metrics.scale_up_factor }}
+        {% endif %}
+        {% if loki_config_storage.aws.dynamodb.metrics.ignore_throttle_below is defined and
+              loki_config_storage.aws.dynamodb.metrics.ignore_throttle_below | string | length > 0 %}
+        ignore_throttle_below: {{ loki_config_storage.aws.dynamodb.metrics.ignore_throttle_below }}
+        {% endif %}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  {% if loki_config_storage.bigtable is defined and
+        loki_config_storage.bigtable | count > 0 %}
+    {% set valid_keys = ["project","instance"] %}
+  bigtable:
+    {% for key, v in loki_config_storage.bigtable.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if loki_config_storage.bigtable.grpc_client_config is defined and
+          loki_config_storage.bigtable.grpc_client_config | count > 0 %}
+    grpc_client_config:
+      {{ tpl.makro_grpc_client_config(loki_config_storage.bigtable.grpc_client_config) | indent(6, False) }}
+    {% endif %}
+  {% endif %}
+  {% if loki_config_storage.gcs is defined and
+        loki_config_storage.gcs | count > 0 %}
+    {% set valid_keys = ["bucket_name","chunk_buffer_size","request_timeout"] %}
+  gcs:
+    {% for key, v in loki_config_storage.gcs.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if loki_config_storage.cassandra is defined and
+        loki_config_storage.cassandra | count > 0 %}
+    {% set valid_keys = ["port","keyspace","consistency","replication_factor","disable_initial_host_lookup","SSL","host_verification","CA_path","tls_cert_path","tls_key_path",
+      "auth","username","password","timeout","connect_timeout"] %}
+  cassandra:
+    {% if loki_config_storage.cassandra.addresses is defined %}
+      {% if loki_config_storage.cassandra.addresses | type == "list" %}
+    addresses: {{ loki_config_storage.cassandra.addresses | join(',') }}
+      {% else %}
+    addresses: {{ loki_config_storage.cassandra.addresses }}
+      {% endif %}
+    {% endif %}
+    {% for key, v in loki_config_storage.cassandra.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if loki_config_storage.swift is defined and
+        loki_config_storage.swift | count > 0 %}
+    {% set valid_keys = [
+      "auth_url","username","user_domain_name","user_domain_id","user_id","password","domain_id","domain_name",
+      "project_id","project_name","project_domain_id","project_domain_name","region_name","container_name"] %}
+  swift:
+    {% for key, v in loki_config_storage.swift.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {% if loki_config_storage.boltdb is defined and
+        loki_config_storage.boltdb | count > 0 %}
+  boltdb:
+    directory: {{ loki_config_storage.boltdb.directory | default('/var/cache/loki/index') }}
+  {% endif %}
+  {% if loki_config_storage.boltdb_shipper is defined and
+        loki_config_storage.boltdb_shipper | count > 0 %}
+    {% set valid_keys = ["active_index_directory","shared_store","cache_location","cache_ttl","resync_interval","query_ready_num_days"] %}
+  boltdb_shipper:
+    {% for key, v in loki_config_storage.boltdb_shipper.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+    {% if loki_config_storage.boltdb_shipper.index_gateway_client is defined and
+          loki_config_storage.boltdb_shipper.index_gateway_client | count > 0 %}
+    index_gateway_client:
+      {% if loki_config_storage.boltdb_shipper.index_gateway_client.server_address is define and
+            loki_config_storage.boltdb_shipper.index_gateway_client.server_address | string | length > 0 %}
+      server_address: {{ loki_config_storage.boltdb_shipper.index_gateway_client.server_address }}
+      {% endif %}
+      {% if loki_config_storage.boltdb_shipper.index_gateway_client.log_gateway_requests is defined %}
+      log_gateway_requests: {{ loki_config_storage.boltdb_shipper.index_gateway_client.log_gateway_requests | bool | ternary('true','false') }}
+      {% endif %}
+      {% if loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config is defined and
+            loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config | count > 0 %}
+      grpc_client_config:
+        {{ tpl.makro_grpc_client_config(loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config) | indent(8, False) }}
+      {% endif %}
+    {% endif %}
+  {% endif %}
+  {% if loki_config_storage.filesystem is defined and
+        loki_config_storage.filesystem | count > 0 %}
+  filesystem:
+    directory: {{ loki_config_storage.filesystem.directory | default('/var/cache/loki/chunks') }}
+  {% endif %}
 {% endif %}

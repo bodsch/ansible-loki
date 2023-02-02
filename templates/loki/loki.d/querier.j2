@@ -1,5 +1,33 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#querier #}
 {% if loki_config_querier | default({}) | count > 0 %}
+  {%- set valid_keys = [
+    "max_concurrent",
+    "multi_tenant_queries_enabled",
+    "query_ingester_only",
+    "query_ingesters_within",
+    "query_timeout",
+    "query_store_only",
+    "tail_max_duration"] -%}
+
 querier:
-  {{ loki_config_querier | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% for key, v in loki_config_querier.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_querier.engine is defined and
+        loki_config_querier.engine | count > 0 %}
+  engine:
+    {% if loki_config_querier.engine.max_look_back_period is defined and
+          loki_config_querier.engine.max_look_back_period | string | length > 0 %}
+    max_look_back_period: {{ loki_config_querier.engine.max_look_back_period }}
+    {% endif %}
+    {% if loki_config_querier.engine.timeout is defined and
+          loki_config_querier.engine.timeout | string | length > 0 %}
+    timeout: {{ loki_config_querier.engine.timeout }}
+    {% endif %}
+  {% endif %}
 {% endif %}

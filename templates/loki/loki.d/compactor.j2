@@ -1,5 +1,27 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#compactor #}
 {% if loki_config_compactor | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 compactor:
-  {{ loki_config_compactor | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% set valid_keys = [
+    "working_directory","shared_store","shared_store_key_prefix",
+    "compaction_interval","upload_parallelism",
+    "retention_enabled","retention_delete_delay","retention_delete_worker_count",
+    "delete_request_cancel_period","delete_max_interval","delete_batch_size",
+    "retention_table_timeout","max_compaction_parallelism","deletion_mode",
+    "tables_to_compact","skip_latest_n_tables"
+  ] %}
+  {% for key, v in loki_config_compactor.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_compactor.compactor_ring is defined and
+        loki_config_compactor.compactor_ring | count > 0 %}
+  compactor_ring:
+    {{ tpl.makro_rings(loki_config_compactor.compactor_ring) | indent(4, False) -}}
+  {% endif %}
 {% endif %}
