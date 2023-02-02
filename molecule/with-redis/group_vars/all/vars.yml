@@ -70,7 +70,7 @@ loki_config_ingester:
     ring:
       kvstore:
         store: inmemory
-      replication_factor: 3
+      replication_factor: 1
 
 loki_config_limits:
   max_entries_limit_per_query: 0

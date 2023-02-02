@@ -44,6 +44,10 @@ kvstore:
           data.kvstore.prefix | string | length > 0 %}
   prefix: {{ data.kvstore.prefix }}
     {% endif %}
+    {% if data.kvstore.replication_factor is defined and
+          data.kvstore.replication_factor | string | length > 0 %}
+  replication_factor: {{ data.kvstore.replication_factor }}
+    {% endif %}
     {% if _kv_store == "consul" %}
   consul:
     {{ makro_consul(data.kvstore.consul | default({})) | indent(4, False) }}
