@@ -1,7 +1,7 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# https://grafana.com/docs/loki/latest/configuration/#distributor #}
 {% if loki_config_distributor | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#distributor #}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 distributor:
   {% if loki_config_distributor.rate_store is defined and
         loki_config_distributor.rate_store | count > 0 %}

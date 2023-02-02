@@ -1,7 +1,6 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# https://grafana.com/docs/loki/latest/configuration/#limits_config #}
 {% if loki_config_limits | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#limits_config #}
+  {% import 'jinja_macros.j2' as tpl with context %}
   {% set valid_keys = [
     "cardinality_limit","creation_grace_period",
     "enforce_metric_name","increment_duplicate_timestamp","ingestion_burst_size_mb",
@@ -29,6 +28,7 @@
         loki_config_limits.deletion_mode in ["disabled", "filter-only", "filter-and-delete"] %}
     {% set _deletion_mode = loki_config_limits.deletion_mode %}
   {% endif %}
+
 limits_config:
   deletion_mode: {{ _deletion_mode }}
   {% for key, v in loki_config_limits.items() %}

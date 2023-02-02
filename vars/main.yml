@@ -56,7 +56,7 @@ loki_defaults_config_distributor:
       - eth0
       - eth1
     instance_port: 0
-    instance_addr: "127.0.0.1"
+    instance_addr: ""
     heartbeat_timeout: 1m0s
     heartbeat_period: 15s
     kvstore:
@@ -223,7 +223,7 @@ loki_defaults_config_ruler:
   ring:
     kvstore:
       store: inmemory
-  enable_api: true
+  # enable_api: true
 
 loki_defaults_config_tracing:
   enabled: false

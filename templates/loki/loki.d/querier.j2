@@ -1,10 +1,15 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#querier #}
 {% if loki_config_querier | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#querier #}
+  {%- set valid_keys = [
+    "max_concurrent",
+    "multi_tenant_queries_enabled",
+    "query_ingester_only",
+    "query_ingesters_within",
+    "query_timeout",
+    "query_store_only",
+    "tail_max_duration"] -%}
+
 querier:
-  {% set valid_keys = [
-    "query_timeout","multi_tenant_queries_enabled","query_ingester_only",
-    "query_store_only","max_concurrent","query_ingesters_within","tail_max_duration"] %}
   {% for key, v in loki_config_querier.items() %}
     {% if key in valid_keys %}
       {% set value = v | loki_value %}

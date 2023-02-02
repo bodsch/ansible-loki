@@ -1,7 +1,55 @@
+{# https://grafana.com/docs/loki/latest/configuration/#memberlist_config #}
+{#
+  The memberlist_config block configures the gossip ring to discover and connect
+  between distributors, ingesters and queriers. The configuration is unique for
+  all three components to ensure a single shared ring.
 
+  When a memberlist_config with least 1 join_members is defined, a kvstore of
+  type memberlist is automatically configured for the distributor, ingester, and
+  ruler rings unless otherwise specified in those components specific configuration
+  sections.
+
+  https://grafana.com/docs/loki/latest/configuration/examples/#almost-zero-dependencyyaml
+#}
 {% if loki_config_memberlist | default({}) | count > 0 %}
-  {# to be cleared #}
-  {# https://grafana.com/docs/loki/latest/configuration/#memberlist_config #}
+  {% import 'jinja_macros.j2' as tpl with context %}
+  {% set valid_keys = [
+    "abort_if_cluster_join_fails","bind_port",
+    "dead_node_reclaim_time","gossip_interval","gossip_nodes",
+    "gossip_to_dead_nodes_time","leave_timeout","left_ingesters_timeout",
+    "max_join_backoff","max_join_retries","min_join_backoff",
+    "node_name","packet_dial_timeout","packet_write_timeout",
+    "pull_push_interval","randomize_node_name","rejoin_interval",
+    "retransmit_factor","stream_timeout"
+] %}
+
 memberlist:
-  {{ loki_config_memberlist | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_memberlist.bind_addr is defined %}
+    {% if loki_config_memberlist.bind_addr | type == "list" %}
+  bind_addr:
+      {% for i in loki_config_memberlist.bind_addr %}
+    - {{ i }}
+      {% endfor %}
+    {% else %}
+  bind_addr: {{ loki_config_memberlist.bind_addr }}
+    {% endif %}
+  {% endif %}
+  {% if loki_config_memberlist.join_members is defined %}
+    {% if loki_config_memberlist.join_members | type == "list" %}
+  join_members:
+      {% for i in loki_config_memberlist.join_members %}
+    - {{ i }}
+      {% endfor %}
+    {% else %}
+  join_members: {{ loki_config_memberlist.join_members }}
+    {% endif %}
+  {% endif %}
+  {% for key, v in loki_config_memberlist.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
 {% endif %}

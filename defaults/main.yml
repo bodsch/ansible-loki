@@ -10,6 +10,10 @@ loki_storage_dir: /var/lib/loki
 
 loki_direct_download: false
 
+loki_service:
+  restart: false
+  max_runtime: 7d
+
 # A comma-separated list of components to run.
 # The default value "all" runs Loki in single binary mode.
 # The value "read" is an alias to run only read-path related components such as

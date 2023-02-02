@@ -1,6 +1,5 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#server #}
 {% if loki_config_server | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#server #}
   {% set _log_level = "info" %}
   {% if loki_config_server.log_level is defined and
         loki_config_server.log_level in ["debug", "info", "warn", "error"] %}
@@ -13,6 +12,7 @@
   {%- set valid_grpc_keys = [
     "grpc_listen_address", "grpc_listen_port", "grpc_server_max_recv_msg_size",
     "grpc_server_max_send_msg_size", "grpc_server_max_concurrent_streams" ] -%}
+
 server:
   log_level: {{ _log_level }}
   {# http  #}

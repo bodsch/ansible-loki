@@ -7,9 +7,12 @@
 {# https://grafana.com/docs/loki/latest/configuration/#ring #}
 {%- macro makro_rings(data, i = 6) -%}
 {# .... #}
+{% if not data %}
+# not ring data defined
+{% else %}
   {% set valid_keys = [
-    "heartbeat_period","heartbeat_timeout","tokens_file_path","zone_awareness_enabled","instance_interface_names","instance_addr",
-    "instance_port","instance_id","instance_availability_zone"] %}
+    "heartbeat_period","heartbeat_timeout","num_tokens","tokens_file_path","zone_awareness_enabled",
+    "instance_availability_zone","instance_addr","instance_port","instance_id"] %}
   {% for key, v in data.items() %}
     {% if key in valid_keys %}
       {% set value = v | loki_value %}
@@ -18,31 +21,42 @@
       {% endif %}
     {% endif %}
   {% endfor %}
-{% if data.kvstore is defined and
-      data.kvstore | count > 0 %}
-  {% set _kv_store = "inmemory" %}
-  {% if data.kvstore.store is defined and
-        data.kvstore.store in ["consul", "etcd", "inmemory", "memberlist"] %}
-    {% set _kv_store = data.kvstore.store %}
+  {% if data.instance_interface_names is defined %}
+instance_interface_names:
+    {% if data.instance_interface_names | type == "list" %}
+      {% for i in data.instance_interface_names %}
+  - {{ i }}
+      {% endfor %}
+    {% else %}
+  - {{ data.instance_interface_names }}
+    {% endif %}
   {% endif %}
+  {% if data.kvstore is defined and
+        data.kvstore | count > 0 %}
+    {% set _kv_store = "inmemory" %}
+    {% if data.kvstore.store is defined and
+          data.kvstore.store in ["consul", "etcd", "inmemory", "memberlist"] %}
+      {% set _kv_store = data.kvstore.store %}
+    {% endif %}
 kvstore:
   store: {{ _kv_store }}
-  {% if data.kvstore.prefix is defined and
-        data.kvstore.prefix | string | length > 0 %}
+    {% if data.kvstore.prefix is defined and
+          data.kvstore.prefix | string | length > 0 %}
   prefix: {{ data.kvstore.prefix }}
-  {% endif %}
-  {% if _kv_store == "consul" %}
+    {% endif %}
+    {% if _kv_store == "consul" %}
   consul:
     {{ makro_consul(data.kvstore.consul | default({})) | indent(4, False) }}
-  {% endif %}
-  {% if _kv_store == "etcd" %}
+    {% endif %}
+    {% if _kv_store == "etcd" %}
   etcd:
     {{ makro_etcd(data.kvstore.etcd | default({})) | indent(4, False) }}
-  {% endif %}
-  {% if data.kvstore.multi is defined and
-        data.kvstore.multi | count > 0 %}
+    {% endif %}
+    {% if data.kvstore.multi is defined and
+          data.kvstore.multi | count > 0 %}
   multi:
     {{ makro_multi(data.kvstore.multi | default({})) | indent(4, False) }}
+    {% endif %}
   {% endif %}
 {% endif %}
 {# .... #}
@@ -439,47 +453,47 @@ target: {{ data.target }}
   {% if data.azure is defined and
         data.azure | count > 0 %}
 azure:
-  {{ makro_azure_storage_config(data.azure) | indent(2, False) }}
+  {{ makro_storage_config_azure(data.azure) | indent(2, False) }}
   {% endif %}
   {% if data.gcs is defined and
         data.gcs | count > 0 %}
 gcs:
-  {{ makro_gcs_storage_config(data.gcs) | indent(2, False) }}
+  {{ makro_storage_config_gcs(data.gcs) | indent(2, False) }}
   {% endif %}
   {% if data.s3 is defined and
         data.s3 | count > 0 %}
 s3:
-  {{ makro_s3_storage_config(data.s3) | indent(2, False) }}
+  {{ makro_storage_config_s3(data.s3) | indent(2, False) }}
   {% endif %}
   {% if data.swift is defined and
         data.swift | count > 0 %}
 swift:
-  {{ makro_swift_storage_config(data.swift) | indent(2, False) }}
+  {{ makro_storage_config_swift(data.swift) | indent(2, False) }}
   {% endif %}
   {% if data.filesystem is defined and
         data.filesystem | count > 0 %}
 filesystem:
-  {{ makro_local_storage_config(data.filesystem) | indent(2, False) }}
+  {{ makro_storage_config_local(data.filesystem) | indent(2, False) }}
   {% endif %}
   {% if data.bos is defined and
         data.bos | count > 0 %}
 bos:
-  {{ makro_bos_storage_config(data.bos) | indent(2, False) }}
+  {{ makro_storage_config_bos(data.bos) | indent(2, False) }}
   {% endif %}
   {% if data.hedging is defined and
         data.hedging | count > 0 %}
 hedging:
-  {{ makro_hedging_storage_config(data.hedging) | indent(2, False) }}
+  {{ makro_storage_config_hedging(data.hedging) | indent(2, False) }}
   {% endif %}
 {% endif %}
 {# .... #}
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#bos_storage_config #}
-{%- macro makro_bos_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_bos(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not bos_storage_config data defined
+# not storage_config_bos data defined
 {% else %}
   {% set valid_keys = ["bucket_name","endpoint","access_key_id","secret_access_key"] %}
   {% for key, v in data.items() %}
@@ -495,10 +509,10 @@ hedging:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#azure_storage_config #}
-{%- macro makro_azure_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_azure(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not azure_storage_config data defined
+# not storage_config_azure data defined
 {% else %}
   {% set valid_keys = [
     "environment","account_name","account_key","container_name",
@@ -518,10 +532,10 @@ hedging:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#gcs_storage_config #}
-{%- macro makro_gcs_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_gcs(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not gcs_storage_config data defined
+# not storage_config_gcs data defined
 {% else %}
   {% set valid_keys = ["bucket_name","service_account","chunk_buffer_size","request_timeout","enable_http2"] %}
   {% for key, v in data.items() %}
@@ -537,10 +551,10 @@ hedging:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#s3_storage_config #}
-{%- macro makro_s3_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_s3(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not s3_storage_config data defined
+# not storage_config_s3 data defined
 {% else %}
   {% set valid_keys = ["s3","s3forcepathstyle","bucketnames","endpoint","region","access_key_id","secret_access_key","insecure","sse_encryption"] %}
   {% for key, v in data.items() %}
@@ -569,10 +583,10 @@ http_config:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#swift_storage_config #}
-{%- macro makro_swift_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_swift(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not swift_storage_config data defined
+# not storage_config_swift data defined
 {% else %}
   {% set valid_keys = [
     "auth_url","username","user_domain_name","user_domain_id","user_id",
@@ -591,10 +605,10 @@ http_config:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#hedging #}
-{%- macro makro_hedging_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_hedging(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not hedging_storage_config data defined
+# not storage_config_hedging data defined
 {% else %}
   {% set valid_keys = ["at","up_to","max_per_second"] %}
   {% for key, v in data.items() %}
@@ -610,12 +624,12 @@ http_config:
 {%- endmacro -%}
 
 {# https://grafana.com/docs/loki/latest/configuration/#local_storage_config #}
-{%- macro makro_local_storage_config(data, i = 6) -%}
+{%- macro makro_storage_config_local(data, i = 6) -%}
 {# ... #}
 {% if not data %}
-# not local_storage_config data defined
+# not storage_config_local data defined
 {% else %}
-  {% set valid_keys = ["chunks_directory","rules_directory"] %}
+  {% set valid_keys = ["chunks_directory","rules_directory","directory"] %}
   {% for key, v in data.items() %}
     {% if key in valid_keys %}
       {% set value = v | loki_value %}
@@ -633,7 +647,20 @@ http_config:
 {% if not data %}
 # not tls data defined
 {% else %}
-  {% set valid_keys = ["ca_file","cert_file","key_file","client_auth_type","client_ca_file","tls_cipher_suites","tls_min_version","server_name","insecure_skip_verify"] %}
+  {% set valid_keys = [
+    "ca_file",
+    "cert_file",
+    "key_file",
+    "client_auth_type",
+    "client_ca_file",
+    "tls_cert_path",
+    "tls_key_path",
+    "tls_ca_path",
+    "tls_cipher_suites",
+    "tls_min_version",
+    "server_name",
+    "insecure_skip_verify"
+    ] %}
   {% for key, v in data.items() %}
     {% if key in valid_keys %}
       {% set value = v | loki_value %}
@@ -687,12 +714,25 @@ http_config:
 {% if not data %}
 # not headers data defined
 {% else %}
-  {% for k, v in c.items() %}
+  {% for k, v in data.items() %}
 {{ k }}: {{ v }}
   {% endfor %}
 {% endif %}
 {# .... #}
 {%- endmacro -%}
+
+{%- macro makro_external_labels(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not external_labels data defined
+{% else %}
+  {% for k, v in data.items() %}
+{{ k }}: {{ v }}
+  {% endfor %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
 
 {#
   List of alert relabel configs
@@ -817,6 +857,8 @@ queue_config:
   {% endfor %}
   {% if data.alertmanager_client is defined %}
 alertmanager_client:
+  {{ makro_alertmanager_client(data.alertmanager_client) | indent(2, False) }}
+{#
     {% if data.alertmanager_client.basic_auth_username is defined and
           data.alertmanager_client.basic_auth_username | string | length > 0 %}
   basic_auth_username: {{ data.alertmanager_client.basic_auth_username }}
@@ -825,11 +867,6 @@ alertmanager_client:
           data.alertmanager_client.basic_auth_password | string | length > 0 %}
   basic_auth_password: {{ data.alertmanager_client.basic_auth_password }}
     {% endif %}
-    {#
-     # Optional `Authorization` header configuration.
-     # Sets the credentials to the credentials read from the configured file.
-     # `credentials` and `credentials_file` are mutually exclusive.
-    #}
     {% if data.alertmanager_client.authorization is defined and
           (
             (data.alertmanager_client.authorization.type and data.alertmanager_client.authorization.type | string | length > 0) and
@@ -845,6 +882,7 @@ alertmanager_client:
     credentials: {{ data.alertmanager_client.authorization.credentials }}
       {% endif %}
     {% endif %}
+#}
   {% endif %}
   {% if data.alert_relabel_configs is defined %}
 alert_relabel_configs:
@@ -853,6 +891,45 @@ alert_relabel_configs:
 {% endif %}
 {# .... #}
 {%- endmacro -%}
+
+
+{%- macro makro_alertmanager_client(data, i = 6) -%}
+{# ... #}
+{% if not data %}
+# not alertmanager_client data defined
+{% else %}
+  {% if data.basic_auth_username is defined and
+        data.basic_auth_username | string | length > 0 %}
+basic_auth_username: {{ data.basic_auth_username }}
+  {% endif %}
+  {% if data.basic_auth_password is defined and
+        data.basic_auth_password | string | length > 0 %}
+basic_auth_password: {{ data.basic_auth_password }}
+  {% endif %}
+  {#
+   # Optional `Authorization` header configuration.
+   # Sets the credentials to the credentials read from the configured file.
+   # `credentials` and `credentials_file` are mutually exclusive.
+  #}
+  {% if data.authorization is defined and
+        (
+          (data.authorization.type and data.authorization.type | string | length > 0) and
+          (data.authorization.credentials and data.authorization.credentials | string | length > 0) or
+          (data.authorization.credentials_file and data.authorization.credentials_file | string | length > 0)
+        )
+  %}
+authorization:
+  type: {{ data.authorization.type }}
+    {% if data.authorization.credentials_file and data.authorization.credentials_file | string | length > 0 %}
+  credentials_file: {{ data.authorization.credentials_file }}
+    {% else %}
+  credentials: {{ data.authorization.credentials }}
+    {% endif %}
+  {% endif %}
+{% endif %}
+{# .... #}
+{%- endmacro -%}
+
 
 {# https://grafana.com/docs/loki/latest/configuration/#sigv4_config #}
 {%- macro makro_sigv4(data, i = 6) -%}

@@ -169,4 +169,17 @@ loki_config_frontend_worker:
 #   retention_deletes_enabled: true
 #   retention_period: 8640h
 
+
+loki_config_memberlist:
+  abort_if_cluster_join_fails: false
+  # Expose this port on all distributor, ingester
+  # and querier replicas.
+  bind_port: 7946
+  join_members:
+    - "{{ ansible_hostname }}:7946"
+
+  max_join_backoff: 1m
+  max_join_retries: 10
+  min_join_backoff: 1s
+
 ...

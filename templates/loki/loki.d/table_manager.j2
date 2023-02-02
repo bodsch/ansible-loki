@@ -1,9 +1,10 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# #}
 {% if loki_config_table_manager | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context -%}
   {% set valid_keys = [
     "throughput_updates_disabled","retention_deletes_enabled","retention_period","poll_interval","creation_grace_period"
-  ] -%}
+  ] %}
+
 table_manager:
   {% for key, v in loki_config_table_manager.items() %}
     {% if key in valid_keys %}

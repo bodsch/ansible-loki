@@ -1,9 +1,11 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# https://grafana.com/docs/loki/latest/configuration/#chunk_store_config #}
 {% if loki_config_chunk_store | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#chunk_store_config #}
+  {% import 'jinja_macros.j2' as tpl with context %}
+  {%- set valid_keys = [
+    "max_look_back_period","cache_lookups_older_than"]
+  %}
+
 chunk_store_config:
-  {% set valid_keys = ["max_look_back_period","cache_lookups_older_than"] %}
   {% for key, v in loki_config_chunk_store.items() %}
     {% if key in valid_keys %}
       {% set value = v | loki_value %}

@@ -1,8 +1,6 @@
-
+{# not clear definition #}
 {% if loki_config_runtime | default({}) | count > 0 %}
-  {# not clear definition #}
-  {# #}
-# loki 2.3
+
 runtime_config:
   {{ loki_config_runtime | to_nice_yaml(indent=2) | indent(2, False) }}
 {% endif %}

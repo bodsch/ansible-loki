@@ -1,6 +1,6 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#tracing #}
 {% if loki_config_tracing | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#tracing #}
+
 tracing:
   {% if loki_config_tracing.enabled is defined %}
   enabled: {{ loki_config_tracing.enabled | default('false') | bool | ternary('true','false') }}

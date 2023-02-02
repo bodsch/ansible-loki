@@ -1,6 +1,7 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# #}
 {% if loki_config_query_scheduler | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 query_scheduler:
   {% set valid_keys = [
     "querier_forget_delay","max_outstanding_requests_per_tenant","use_scheduler_ring"] %}

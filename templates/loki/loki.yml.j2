@@ -14,7 +14,6 @@ auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', '
 {% include('loki.d/query_scheduler.j2') -%}
 {% include('loki.d/frontend.j2') -%}
 {% include('loki.d/query_range.j2') -%}
-{# TODO #}
 {% include('loki.d/ruler.j2') -%}
 {% include('loki.d/ingester_client.j2') -%}
 {% include('loki.d/ingester.j2') -%}
@@ -26,9 +25,9 @@ auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', '
 {% include('loki.d/limits_config.j2') -%}
 {% include('loki.d/frontend_worker.j2') -%}
 {% include('loki.d/table_manager.j2') -%}
+{# TODO #}
 {# include('loki.d/runtime_config.j2') #}
 {% include('loki.d/tracing.j2') -%}
 {% include('loki.d/common.j2') -%}
 {% include('loki.d/analytics.j2') -%}
-{# TODO #}
 {% include('loki.d/memberlist.j2') -%}

@@ -1,240 +1,151 @@
-
+{# https://grafana.com/docs/loki/latest/configuration/#ruler #}
 {% if loki_config_ruler | default({}) | count > 0 %}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 ruler:
-  {{ loki_config_ruler | to_nice_yaml(indent=2) | indent(2, False) }}
+  {% if loki_config_ruler.ring is defined %}
+  ring:
+    {{ tpl.makro_rings(loki_config_ruler.ring | default({})) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_ruler.ruler_client is defined %}
+  ruler_client:
+    {{ tpl.makro_tls_config(loki_config_ruler.ruler_client | default({})) | indent(4, False) -}}
+  {% endif %}
+  {% if loki_config_ruler.storage is defined %}
+  storage:
+    {% set _storage_type = "local" %}
+    {% if loki_config_ruler.storage.type is defined and
+          loki_config_ruler.storage.type in ["azure", "gcs", "s3", "swift", "local", "bos"] %}
+      {% set _storage_type = loki_config_ruler.storage.type %}
+    {% endif %}
+    type: {{ _storage_type }}
+    {% if _storage_type == "azure" and
+          loki_config_ruler.storage.azure is defined and
+          loki_config_ruler.storage.azure | count > 0 %}
+    azure:
+      {{ tpl.makro_storage_config_azure(loki_config_ruler.storage.azure) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "gcs" and
+          loki_config_ruler.storage.gcs is defined and
+          loki_config_ruler.storage.gcs | count > 0 %}
+    gcs:
+      {{ tpl.makro_storage_config_gcs(loki_config_ruler.storage.gcs) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "s3" and
+          loki_config_ruler.storage.s3 is defined and
+          loki_config_ruler.storage.s3 | count > 0 %}
+    s3:
+      {{ tpl.makro_storage_config_s3(loki_config_ruler.storage.s3) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "swift" and
+          loki_config_ruler.storage.swift is defined and
+          loki_config_ruler.storage.swift | count > 0 %}
+    swift:
+      {{ tpl.makro_storage_config_swift(loki_config_ruler.storage.swift) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "bos" and
+          loki_config_ruler.storage.bos is defined and
+          loki_config_ruler.storage.bos | count > 0 %}
+    bos:
+      {{ tpl.makro_storage_config_bos(loki_config_ruler.storage.bos) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "hedging" and
+          loki_config_ruler.storage.hedging is defined and
+          loki_config_ruler.storage.hedging | count > 0 %}
+    hedging:
+      {{ tpl.makro_storage_config_hedging(loki_config_ruler.storage.hedging) | indent(6, False) -}}
+    {% endif %}
+    {% if _storage_type == "local" and
+          loki_config_ruler.storage.local is defined and
+          loki_config_ruler.storage.local | count > 0 %}
+    local:
+      {{ tpl.makro_storage_config_local(loki_config_ruler.storage.local) | indent(6, False) -}}
+    {% endif %}
+  {% endif %}
+  {# Remote-write configuration to send rule samples to a Prometheus remote-write endpoint. #}
+  {% if loki_config_ruler.remote_write is defined and
+        loki_config_ruler.remote_write.enabled | default('false') %}
+  remote_write:
+    enabled: {{ loki_config_ruler.remote_write.enabled | default('false') | bool | ternary('true','false') }}
+    config_refresh_period: {{ loki_config_ruler.remote_write.config_refresh_period | default('10s') }}
+    {% if loki_config_ruler.remote_write.client is defined and
+          loki_config_ruler.remote_write.client | count > 0 %}
+    # Deprecated: Use `clients` instead
+    client:
+      {{ tpl.makro_remote_write_client_config(loki_config_ruler.remote_write.client) | indent(6, False) }}
+    {% endif %}
+    {% if loki_config_ruler.remote_write.clients is defined and
+          loki_config_ruler.remote_write.clients | count > 0 %}
+    clients:
+      {% for key, values in loki_config_ruler.remote_write.clients.items() %}
+      # [<string>: <remote_write_client_config>]
+      {{ key }}:
+        {{ tpl.makro_remote_write_client_config(values) | indent(8, False) }}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+  {# wal #}
+  {% if loki_config_ruler.wal is defined and
+        loki_config_ruler.wal | count > 0 %}
+  wal:
+    {% set _wal_dir = loki_storage_dir ~ "/ruler-wal" %}
+    {% if loki_config_ruler.wal.dir is defined and
+          loki_config_ruler.wal.dir | string | length > 0 %}
+      {% set _wal_dir = loki_config_ruler.wal.dir %}
+    {% endif %}
+    dir: {{ _wal_dir }}
+    {% set valid_keys = ["truncate_frequency", "min_age", "max_age"] %}
+    {% for key, v in loki_config_ruler.wal.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {# wal_cleaner #}
+  {% if loki_config_ruler.wal_cleaner is defined and
+        loki_config_ruler.wal_cleaner | count > 0 %}
+  wal_cleaner:
+    {% set valid_keys = ["min_age", "period"] %}
+    {% for key, v in loki_config_ruler.wal_cleaner.items() %}
+      {% if key in valid_keys %}
+        {% set value = v | loki_value %}
+        {% if value %}
+    {{ key }}: {{ value }}
+        {% endif %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+  {# alertmanager_client #}
+  {% if loki_config_ruler.alertmanager_client is defined and
+        loki_config_ruler.alertmanager_client | count > 0 %}
+  alertmanager_client:
+    {{ tpl.makro_alertmanager_client(loki_config_ruler.alertmanager_client) | indent(4, False) }}
+  {% endif %}
+  {% set valid_keys = [
+    "external_url", "evaluation_interval", "poll_interval", "rule_path", "alertmanager_url",
+    "enable_alertmanager_discovery", "alertmanager_refresh_interval", "enable_alertmanager_v2",
+    "notification_queue_capacity", "notification_timeout", "for_outage_tolerance", "for_grace_period",
+    "resend_delay", "enable_sharding", "search_pending_for"
+  ] %}
+  {% for key, v in loki_config_ruler.items() %}
+    {% if key in valid_keys %}
+      {% set value = v | loki_value %}
+      {% if value %}
+  {{ key }}: {{ value }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  {% if loki_config_ruler.external_labels is defined and
+        loki_config_ruler.external_labels | count > 0 %}
+  external_labels:
+    {{ tpl.makro_external_labels(loki_config_ruler.external_labels) | indent(4, False) }}
+  {% endif %}
+  {% if loki_config_ruler.alert_relabel_configs is defined and
+        loki_config_ruler.alert_relabel_configs | count > 0 %}
+  alert_relabel_configs:
+    {{ tpl.makro_relabel_configs(loki_config_ruler.alert_relabel_configs) | indent(4, False) }}
+  {% endif %}
 {% endif %}
-
-{#
-# URL of alerts return path.
-# CLI flag: -ruler.external.url
-[external_url: <url> | default = ]
-
-# Labels to add to all alerts
-external_labels:
-  [<labelname>: <labelvalue> ...]
-
-ruler_client:
-  # Path to the client certificate file, which will be used for authenticating
-  # with the server. Also requires the key path to be configured.
-  # CLI flag: -ruler.client.tls-cert-path
-  [tls_cert_path: <string> | default = ""]
-
-  # Path to the key file for the client certificate. Also requires the client
-  # certificate to be configured.
-  # CLI flag: -ruler.client.tls-key-path
-  [tls_key_path: <string> | default = ""]
-
-  # Path to the CA certificates file to validate server certificate against. If
-  # not set, the host's root CA certificates are used.
-  # CLI flag: -ruler.client.tls-ca-path
-  [tls_ca_path: <string> | default = ""]
-
-  # Skip validating server certificate.
-  # CLI flag: -ruler.client.tls-insecure-skip-verify
-  [tls_insecure_skip_verify: <boolean> | default = false]
-
-  # Override the default cipher suite list (separated by commas).
-  # CLI flag: -ruler.client.tls_cipher_suites
-  [tls_cipher_suites: <string> | default = ""]
-
-  # Override the default minimum TLS version.
-  # CLI flag: -ruler.client.tls_min_version
-  [tls_min_version: <string> | default = ""]
-
-# How frequently to evaluate rules.
-# CLI flag: -ruler.evaluation-interval
-[evaluation_interval: <duration> | default = 1m]
-
-# How frequently to poll for rule changes.
-# CLI flag: -ruler.poll-interval
-[poll_interval: <duration> | default = 1m]
-
-storage:
-  # Method to use for backend rule storage (azure, gcs, s3, swift, local, bos).
-  # CLI flag: -ruler.storage.type
-  [type: <string> ]
-
-  # Configures backend rule storage for Azure.
-  [azure: <azure_storage_config>]
-
-  # Configures backend rule storage for GCS.
-  [gcs: <gcs_storage_config>]
-
-  # Configures backend rule storage for S3.
-  [s3: <s3_storage_config>]
-
-  # Configures backend rule storage for Swift.
-  [swift: <swift_storage_config>]
-
-  # Configures backend rule storage for a local file system directory.
-  [local: <local_storage_config>]
-
-  # Configures backend rule storage for Baidu Object Storage (BOS).
-  [bos: <bos_storage_config>]
-
-  # The `hedging` block configures how to hedge storage requests.
-  [hedging: <hedging>]
-
-# Remote-write configuration to send rule samples to a Prometheus remote-write endpoint.
-remote_write:
-  # Enable remote-write functionality.
-  # CLI flag: -ruler.remote-write.enabled
-  [enabled: <boolean> | default = false]
-  # Minimum period to wait between refreshing remote-write reconfigurations.
-  # This should be greater than or equivalent to -limits.per-user-override-period.
-  [config_refresh_period: <duration> | default = 10s]
-
-  # Deprecated: Use `clients` instead
-  # Configure remote write client.
-  [client: <remote_write_client_config>]
-
-  # Configure remote write clients.
-  # A map with remote client id as key.
-  clients:
-    [<string>: <remote_write_client_config>]
-
-wal:
-  # The directory in which to write tenant WAL files. Each tenant will have its own
-  # directory one level below this directory.
-  [dir: <string> | default = "ruler-wal"]
-  # Frequency with which to run the WAL truncation process.
-  [truncate_frequency: <duration> | default = 60m]
-  # Minimum and maximum time series should exist in the WAL for.
-  [min_age: <duration> | default = 5m]
-  [max_age: <duration> | default = 4h]
-
-wal_cleaner:
-  # The minimum age of a WAL to consider for cleaning.
-  [min_age: <duration> | default = 12h]
-  # How often to run the WAL cleaner.
-  [period: <duration> | default = 0s (disabled)]
-
-# File path to store temporary rule files.
-# CLI flag: -ruler.rule-path
-[rule_path: <filename> | default = "/rules"]
-
-# Comma-separated list of Alertmanager URLs to send notifications to.
-# Each Alertmanager URL is treated as a separate group in the configuration.
-# Multiple Alertmanagers in HA per group can be supported by using DNS
-# resolution via -ruler.alertmanager-discovery.
-# CLI flag: -ruler.alertmanager-url
-[alertmanager_url: <string> | default = ""]
-
-
-alertmanager_client:
-  # Sets the `Authorization` header on every remote write request with the
-  # configured username and password.
-  # password and password_file are mutually exclusive.
-  [basic_auth_username: <string>]
-  [basic_auth_password: <secret>]
-
-  # Optional `Authorization` header configuration.
-  authorization:
-    # Sets the authentication type.
-    [type: <string> | default: Bearer]
-    # Sets the credentials. It is mutually exclusive with
-    # `credentials_file`.
-    [credentials: <secret>]
-    # Sets the credentials to the credentials read from the configured file.
-    # It is mutually exclusive with `credentials`.
-    [credentials_file: <filename>]
-
-# Use DNS SRV records to discover Alertmanager hosts.
-# CLI flag: -ruler.alertmanager-discovery
-[enable_alertmanager_discovery: <boolean> | default = false]
-
-# How long to wait between refreshing DNS resolutions of Alertmanager hosts.
-# CLI flag: -ruler.alertmanager-refresh-interval
-[alertmanager_refresh_interval: <duration> | default = 1m]
-
-# If enabled, then requests to Alertmanager use the v2 API.
-# CLI flag: -ruler.alertmanager-use-v2
-[enable_alertmanager_v2: <boolean> | default = false]
-
-# List of alert relabel configs
-alert_relabel_configs:
-  [- <relabel_config> ...]
-
-# Capacity of the queue for notifications to be sent to the Alertmanager.
-# CLI flag: -ruler.notification-queue-capacity
-[notification_queue_capacity: <int> | default = 10000]
-
-# HTTP timeout duration when sending notifications to the Alertmanager.
-# CLI flag: -ruler.notification-timeout
-[notification_timeout: <duration> | default = 10s]
-
-# Max time to tolerate outage for restoring "for" state of alert.
-# CLI flag: -ruler.for-outage-tolerance
-[for_outage_tolerance: <duration> | default = 1h]
-
-# Minimum duration between alert and restored "for" state. This is maintained
-# only for alerts with configured "for" time greater than the grace period.
-# CLI flag: -ruler.for-grace-period
-[for_grace_period: <duration> | default = 10m]
-
-# Minimum amount of time to wait before resending an alert to Alertmanager.
-# CLI flag: -ruler.resend-delay
-[resend_delay: <duration> | default = 1m]
-
-# Distribute rule evaluation using ring backend.
-# CLI flag: -ruler.enable-sharding
-[enable_sharding: <boolean> | default = false]
-
-# Time to spend searching for a pending ruler when shutting down.
-# CLI flag: -ruler.search-pending-for
-[search_pending_for: <duration> | default = 5m]
-
-# Ring used by Loki ruler.
-# The CLI flags prefix for this block config is ruler.ring
-ring:
-  kvstore:
-    # Backend storage to use for the ring. Supported values are: consul, etcd,
-    # inmemory, memberlist, multi.
-    # CLI flag: -<prefix>.store
-    [store: <string> | default = "memberlist"]
-
-    # The prefix for the keys in the store. Should end with a /.
-    # CLI flag: -<prefix>.prefix
-    [prefix: <string> | default = "collectors/"]
-
-    # The consul_config configures the consul client.
-    [consul: <consul_config>]
-
-    # The etcd_config configures the etcd client.
-    [etcd: <etcd_config>]
-
-    multi:
-      # Primary backend storage used by multi-client.
-      # CLI flag: -<prefix>.multi.primary
-      [primary: <string> | default = ""]
-
-      # Secondary backend storage used by multi-client.
-      # CLI flag: -<prefix>.multi.secondary
-      [secondary: <string> | default = ""]
-
-      # Mirror writes to secondary store.
-      # CLI flag: -<prefix>.multi.mirror-enabled
-      [mirror_enabled: <boolean> | default = false]
-
-      # Timeout for storing value to secondary store.
-      # CLI flag: -<prefix>.multi.mirror-timeout
-      [mirror_timeout: <duration> | default = 2s]
-
-  # Interval between heartbeats sent to the ring. 0 = disabled.
-  # CLI flag: -<prefix>.heartbeat-period
-  [heartbeat_period: <duration> | default = 15s]
-
-  # The heartbeat timeout after which ruler ring members are considered unhealthy
-  # within the ring. 0 = never (timeout disabled).
-  # CLI flag: -<prefix>.heartbeat-timeout
-  [heartbeat_timeout: <duration> | default = 1m]
-
-  # Name of network interface to read addresses from.
-  # CLI flag: -<prefix>.instance-interface-names
-  [instance_interface_names: <list of string> | default = [<private network interfaces>]]
-
-  # The number of tokens the lifecycler will generate and put into the ring if
-  # it joined without transferring tokens from another lifecycler.
-  # CLI flag: -<prefix>.num-tokens
-  [num_tokens: <int> | default = 128]
-#}

@@ -1,7 +1,7 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# https://grafana.com/docs/loki/latest/configuration/#storage_config #}
 {% if loki_config_storage | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#storage_config #}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 storage_config:
   {% if loki_config_storage.index_cache_validity is defined and
         loki_config_storage.index_cache_validity | string | length > 0 %}

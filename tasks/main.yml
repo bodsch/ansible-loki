@@ -3,17 +3,17 @@
 - name: prepare
   ansible.builtin.include_tasks: prepare.yml
 
-# - name: download archives
-#   ansible.builtin.include_tasks: download.yml
-#   loop: "{{ loki_packages }}"
-#   loop_control:
-#     index_var: index
-#     label: "{{ item }}"
-#   when:
-#     - not stat_loki_binary.stat.exists
-#
-# - name: install
-#   ansible.builtin.include_tasks: install.yml
+- name: download archives
+  ansible.builtin.include_tasks: download.yml
+  loop: "{{ loki_packages }}"
+  loop_control:
+    index_var: index
+    label: "{{ item }}"
+  when:
+    - not stat_loki_binary.stat.exists
+
+- name: install
+  ansible.builtin.include_tasks: install.yml
 
 - name: configure
   ansible.builtin.include_tasks: configure.yml

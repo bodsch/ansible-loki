@@ -1,7 +1,7 @@
-
-{% import 'jinja_macros.j2' as tpl with context -%}
+{# https://grafana.com/docs/loki/latest/configuration/#compactor #}
 {% if loki_config_compactor | default({}) | count > 0 %}
-  {# https://grafana.com/docs/loki/latest/configuration/#compactor #}
+  {% import 'jinja_macros.j2' as tpl with context %}
+
 compactor:
   {% set valid_keys = [
     "working_directory","shared_store","shared_store_key_prefix",
