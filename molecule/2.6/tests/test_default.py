@@ -150,5 +150,5 @@ def test_open_port(host, get_vars):
     address = loki_server.get("http_listen_address")
     port = loki_server.get("http_listen_port")
 
-    service = host.socket("tcp://{0}:{1}".format(address, port))
+    service = host.socket(f"tcp://{address}:{port}")
     assert service.is_listening

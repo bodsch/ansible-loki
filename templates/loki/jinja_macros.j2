@@ -21,7 +21,12 @@
       {% endif %}
     {% endif %}
   {% endfor %}
-  {% if data.instance_interface_names is defined %}
+  {% if data.instance_interface_names is defined and
+         (data.instance_interface_names | type == "list" and
+          data.instance_interface_names | count > 0)
+        or
+         (data.instance_interface_names | type == "string"  and
+          data.instance_interface_names | string | length > 0) %}
 instance_interface_names:
     {% if data.instance_interface_names | type == "list" %}
       {% for i in data.instance_interface_names %}

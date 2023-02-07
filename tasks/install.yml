@@ -41,7 +41,6 @@
     mode: 0644
   notify:
     - daemon-reload
-    - restart loki
 
 - name: create systemd service configuration
   ansible.builtin.template:
@@ -52,8 +51,7 @@
     group: "{{ loki_system_group }}"
     mode: 0640
   notify:
-    - verify config
-    - reload loki
+    - restart loki
 
 - name: create local facts
   ansible.builtin.template:

@@ -61,11 +61,11 @@ loki_defaults_config_server:
 
 loki_defaults_config_distributor:
   ring:
-    instance_id: "{{ ansible_hostname }}"
-    instance_interface_names:
-      - lo
-      - eth0
-      - eth1
+    instance_id: "" # {{ ansible_hostname }}"
+    instance_interface_names: []
+#       - lo
+#       - eth0
+#       - eth1
     instance_port: 0
     instance_addr: ""
     heartbeat_timeout: 1m0s
@@ -185,8 +185,8 @@ loki_defaults_config_storage:
   filesystem:
     directory: "{{ loki_storage_dir }}/chunks"
 
-loki_defaults_config_chunk_store:
-  max_look_back_period: 672h
+loki_defaults_config_chunk_store: {}
+#  max_look_back_period: 672h
 
 loki_defaults_config_schema:
   configs:
