@@ -17,6 +17,17 @@ loki_packages:
 loki_requirements:
   - iproute2
 
+loki_defaults_config_service:
+  validation:
+    create_grace_period: ""
+    enforce_metric_name: true
+    increment_duplicate_timestamps: true
+    max_entries_limit: ""
+    max_label_names_per_series: ""
+    max_length_label_name: ""
+    reject_old_samples: true
+    reject_old_samples_max_age: ""
+
 loki_defaults_config_server:
   # Supported values [debug, info, warn, error]
   log_level: "info"
@@ -116,6 +127,7 @@ loki_defaults_config_querier:
     timeout: 5m
   query_ingesters_within: 3h
   tail_max_duration: 1h
+  max_query_lookback: 672h
 
 loki_defaults_config_query_range: {}
 
@@ -132,7 +144,7 @@ loki_defaults_config_ingester:
       kvstore:
         # Supported values are: consul, etcd, inmemory, memberlist
         store: inmemory
-      replication_factor: 3
+      replication_factor: 1
     final_sleep: 0s
   # All chunks will be flushed when they hit this age, default is 1h
   max_chunk_age: 1h
@@ -228,6 +240,8 @@ loki_defaults_config_ruler:
 
 loki_defaults_config_tracing:
   enabled: false
+
+loki_defaults_directory: /etc/default
 
 go_arch_map:
   x86_64: 'amd64'

@@ -27,6 +27,8 @@ loki_targets:
 
 loki_auth_enabled: false
 
+loki_config_service: {}
+
 loki_config_server: {}
 
 loki_config_common: {}

@@ -104,6 +104,7 @@ loki_config_compactor: {}
 loki_config_ruler: {}
 ```
 
+
 ### `loki_targets`
 
 A list of components to run.  
@@ -121,6 +122,24 @@ Supported values:
 
 ```yaml
 loki_auth_enabled: false
+```
+
+### `loki_config_service`
+
+Values to configure the service directly.  
+Only values that are not listed in the configuration file are defined here.
+
+```yaml
+loki_config_service:
+  validation:
+    create_grace_period: ""
+    enforce_metric_name: ""
+    increment_duplicate_timestamps: ""
+    max_entries_limit: ""
+    max_label_names_per_series: ""
+    max_length_label_name: ""
+    reject_old_samples: ""
+    reject_old_samples_max_age: ""
 ```
 
 for more, [see](docs).

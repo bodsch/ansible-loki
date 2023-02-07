@@ -31,6 +31,10 @@ instance_interface_names:
   - {{ data.instance_interface_names }}
     {% endif %}
   {% endif %}
+  {% if data.replication_factor is defined and
+        data.replication_factor | string | length > 0 %}
+replication_factor: {{ data.replication_factor }}
+  {% endif %}
   {% if data.kvstore is defined and
         data.kvstore | count > 0 %}
     {% set _kv_store = "inmemory" %}
@@ -39,15 +43,11 @@ instance_interface_names:
       {% set _kv_store = data.kvstore.store %}
     {% endif %}
 kvstore:
-  store: {{ _kv_store }}
-    {% if data.kvstore.prefix is defined and
-          data.kvstore.prefix | string | length > 0 %}
+   {% if data.kvstore.prefix is defined and
+         data.kvstore.prefix | string | length > 0 %}
   prefix: {{ data.kvstore.prefix }}
     {% endif %}
-    {% if data.kvstore.replication_factor is defined and
-          data.kvstore.replication_factor | string | length > 0 %}
-  replication_factor: {{ data.kvstore.replication_factor }}
-    {% endif %}
+  store: {{ _kv_store }}
     {% if _kv_store == "consul" %}
   consul:
     {{ makro_consul(data.kvstore.consul | default({})) | indent(4, False) }}

@@ -43,6 +43,18 @@
     - daemon-reload
     - restart loki
 
+- name: create systemd service configuration
+  ansible.builtin.template:
+    src: "loki.j2"
+    dest: "{{ loki_defaults_directory }}/loki"
+    force: true
+    owner: root
+    group: "{{ loki_system_group }}"
+    mode: 0640
+  notify:
+    - verify config
+    - reload loki
+
 - name: create local facts
   ansible.builtin.template:
     src: ansible_facts.j2

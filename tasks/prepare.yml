@@ -154,6 +154,7 @@
 
 - name: merge loki configuration between defaults and custom
   ansible.builtin.set_fact:
+    loki_config_service: "{{ loki_defaults_config_service | combine(loki_config_service, recursive=True) }}"
     loki_config_chunk_store: "{{ loki_defaults_config_chunk_store | combine(loki_config_chunk_store, recursive=True) }}"
     loki_config_common: "{{ loki_defaults_config_common | combine(loki_config_common, recursive=True) }}"
     loki_config_compactor: "{{ loki_defaults_config_compactor | combine(loki_config_compactor, recursive=True) }}"

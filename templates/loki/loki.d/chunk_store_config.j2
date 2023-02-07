@@ -8,6 +8,7 @@
 chunk_store_config:
   {% for key, v in loki_config_chunk_store.items() %}
     {% if key in valid_keys %}
+  # DEPRECATED flag -store.max-look-back-period, use -querier.max-query-lookback instead.
       {% set value = v | loki_value %}
       {% if value %}
   {{ key }}: {{ value }}
