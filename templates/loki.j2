@@ -1,7 +1,7 @@
 #jinja2: trim_blocks: True, lstrip_blocks: True
 # {{ ansible_managed }}
 
-OPTIONS="
+OPTIONS=" \
   -config.file {{ loki_config_dir }}/loki.yml \
   {% if loki_config_service is defined and
         loki_config_service | count > 0 %}
