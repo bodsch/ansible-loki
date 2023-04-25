@@ -2,4 +2,4 @@
 
 collections:
   - name: bodsch.core
-    version: 1.0.14
+  - name: bodsch.scm
