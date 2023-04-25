@@ -8,7 +8,7 @@ storage_config:
   index_cache_validity: {{ loki_config_storage.index_cache_validity }}
   {% endif %}
   {% if loki_config_storage.disable_broad_index_queries is defined %}
-  disable_broad_index_queries: {{ loki_config_storage.disable_broad_index_queries | bool | ternary('true','false') }}
+  disable_broad_index_queries: {{ loki_config_storage.disable_broad_index_queries | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
   {% endif %}
   {% if loki_config_storage.max_chunk_batch_size is defined and
         loki_config_storage.max_chunk_batch_size | string | length > 0 %}
@@ -43,7 +43,7 @@ storage_config:
       response_header_timeout: {{ loki_config_storage.aws.http_config.response_header_timeout }}
       {% endif %}
       {% if loki_config_storage.aws.http_config.insecure_skip_verify is defined %}
-      insecure_skip_verify: {{ loki_config_storage.aws.http_config.insecure_skip_verify | bool | ternary('true','false') }}
+      insecure_skip_verify: {{ loki_config_storage.aws.http_config.insecure_skip_verify | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
       {% endif %}
       {% if loki_config_storage.aws.http_config.ca_file is defined and
             loki_config_storage.aws.http_config.ca_file | string | length > 0 %}
@@ -148,7 +148,7 @@ storage_config:
       "auth","username","password","timeout","connect_timeout"] %}
   cassandra:
     {% if loki_config_storage.cassandra.addresses is defined %}
-      {% if loki_config_storage.cassandra.addresses | type == "list" %}
+      {% if loki_config_storage.cassandra.addresses | bodsch.core.type == "list" %}
     addresses: {{ loki_config_storage.cassandra.addresses | join(',') }}
       {% else %}
     addresses: {{ loki_config_storage.cassandra.addresses }}
@@ -203,7 +203,7 @@ storage_config:
       server_address: {{ loki_config_storage.boltdb_shipper.index_gateway_client.server_address }}
       {% endif %}
       {% if loki_config_storage.boltdb_shipper.index_gateway_client.log_gateway_requests is defined %}
-      log_gateway_requests: {{ loki_config_storage.boltdb_shipper.index_gateway_client.log_gateway_requests | bool | ternary('true','false') }}
+      log_gateway_requests: {{ loki_config_storage.boltdb_shipper.index_gateway_client.log_gateway_requests | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
       {% endif %}
       {% if loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config is defined and
             loki_config_storage.boltdb_shipper.index_gateway_client.grpc_client_config | count > 0 %}

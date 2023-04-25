@@ -66,7 +66,7 @@ ruler:
   {% if loki_config_ruler.remote_write is defined and
         loki_config_ruler.remote_write.enabled | default('false') %}
   remote_write:
-    enabled: {{ loki_config_ruler.remote_write.enabled | default('false') | bool | ternary('true','false') }}
+    enabled: {{ loki_config_ruler.remote_write.enabled | default('false') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
     config_refresh_period: {{ loki_config_ruler.remote_write.config_refresh_period | default('10s') }}
     {% if loki_config_ruler.remote_write.client is defined and
           loki_config_ruler.remote_write.client | count > 0 %}

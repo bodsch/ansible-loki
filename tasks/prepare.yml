@@ -40,7 +40,7 @@
   when:
     - loki_requirements | default([]) | count > 0
 
-- name: get latest release
+- name: define latest version
   delegate_to: localhost
   become: false
   run_once: true
@@ -48,23 +48,19 @@
     - loki_version == "latest"
   block:
     - name: get latest release
-      ansible.builtin.uri:
-        url: "https://api.github.com/repos/grafana/loki/releases/latest"
-        method: GET
-        return_content: true
-        status_code: 200
-        body_format: json
-        validate_certs: false
+      delegate_to: localhost
+      become: false
+      run_once: true
+      bodsch.scm.github_latest:
+        project: grafana
+        repository: loki
         user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
         password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
-      # no_log: "{{ not lookup('env', 'ANSIBLE_DEBUG') | bool }}"
       register: _latest_release
-      until: _latest_release.status == 200
-      retries: 5
 
     - name: re-define loki_version
       ansible.builtin.set_fact:
-        loki_version: "{{ _latest_release.json.tag_name[1:] }}"
+        loki_version: "{{ _latest_release.latest_release }}"
 
 - name: detect our installation path '{{ loki_install_path | dirname }}'
   ansible.builtin.stat:
@@ -143,14 +139,6 @@
     owner: "{{ loki_system_user }}"
     group: "{{ loki_system_group }}"
     mode: 0755
-
-- name: create ansible local facts directory
-  ansible.builtin.file:
-    dest: /etc/ansible/facts.d
-    state: directory
-    owner: root
-    group: root
-    mode: 0775
 
 - name: merge loki configuration between defaults and custom
   ansible.builtin.set_fact:

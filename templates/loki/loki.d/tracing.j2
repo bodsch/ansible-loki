@@ -3,6 +3,6 @@
 
 tracing:
   {% if loki_config_tracing.enabled is defined %}
-  enabled: {{ loki_config_tracing.enabled | default('false') | bool | ternary('true','false') }}
+  enabled: {{ loki_config_tracing.enabled | default('false') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
   {% endif %}
 {% endif %}

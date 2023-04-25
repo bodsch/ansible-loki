@@ -27,7 +27,7 @@ platforms:
       - name: loki
         ipam_config:
           - subnet: "10.20.0.0/24"
-            gateway: "10.20.0.1"
+            gateway: "10.20.0.2"
     networks:
       - name: loki
         ipv4_address: "10.20.0.10"
@@ -54,12 +54,16 @@ provisioner:
   name: ansible
   ansible_args:
     - --diff
-    # - -v
+    - -v
   config_options:
     defaults:
-      deprecation_warnings: True
+      deprecation_warnings: true
       stdout_callback: yaml
       callbacks_enabled: profile_tasks
+      gathering: smart
+      fact_caching: jsonfile
+      fact_caching_timeout: 8640
+      fact_caching_connection: "${MOLECULE_EPHEMERAL_DIRECTORY}/ansible_facts"
 
 scenario:
   test_sequence:

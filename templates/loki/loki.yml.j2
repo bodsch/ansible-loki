@@ -4,7 +4,7 @@
 
 target: {{ loki_targets | join(',') }}
 
-auth_enabled: {{ loki_auth_enabled | default('false') | bool | ternary('true', 'false') }}
+auth_enabled: {{ loki_auth_enabled | default('false') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
 
 # ballast_bytes: <int> | default = 0]
 

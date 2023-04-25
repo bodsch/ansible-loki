@@ -1,18 +1,29 @@
 ---
 
-- name: define checksum
+- name: checksum
   become: false
   delegate_to: localhost
   run_once: true
   block:
     - name: get checksum list
-      ansible.builtin.set_fact:
-        __loki_checksums: "{{ lookup('url', 'https://github.com/grafana/loki/releases/download/v' + loki_version + '/SHA256SUMS', wantlist=True) | list }}"
-      run_once: true
+      bodsch.scm.github_checksum:
+        project: grafana
+        repository: loki
+        checksum_file: SHA256SUMS
+        user: "{{ lookup('env', 'GH_USER') | default(omit) }}"
+        password: "{{ lookup('env', 'GH_TOKEN') | default(omit) }}"
+        architecture: "{{ ansible_architecture }}"
+        system: "{{ ansible_facts.system }}"
+        version: "v{{ loki_version }}"
+      register: _latest_checksum
 
-    - name: get checksum for {{ go_arch }} architecture
+    - name: define checksum for {{ go_arch }} architecture
       ansible.builtin.set_fact:
-        __loki_checksum: "{{ __loki_checksums | loki_checksum(item, 'linux', go_arch) }}"
+        __loki_checksum: "{{ _latest_checksum.checksums | loki_checksum(item, 'linux', go_arch) }}"
+      when:
+        - _latest_checksum.rc == 0
+        - _latest_checksum.checksum is defined
+        - _latest_checksum.checksum | string | length > 0
 
 - name: download {{ item }} binary to local folder
   become: false

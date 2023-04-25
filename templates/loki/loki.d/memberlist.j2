@@ -25,7 +25,7 @@
 
 memberlist:
   {% if loki_config_memberlist.bind_addr is defined %}
-    {% if loki_config_memberlist.bind_addr | type == "list" %}
+    {% if loki_config_memberlist.bind_addr | bodsch.core.type == "list" %}
   bind_addr:
       {% for i in loki_config_memberlist.bind_addr %}
     - {{ i }}
@@ -35,7 +35,7 @@ memberlist:
     {% endif %}
   {% endif %}
   {% if loki_config_memberlist.join_members is defined %}
-    {% if loki_config_memberlist.join_members | type == "list" %}
+    {% if loki_config_memberlist.join_members | bodsch.core.type == "list" %}
   join_members:
       {% for i in loki_config_memberlist.join_members %}
     - {{ i }}

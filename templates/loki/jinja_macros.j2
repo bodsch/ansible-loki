@@ -22,13 +22,13 @@
     {% endif %}
   {% endfor %}
   {% if data.instance_interface_names is defined and
-         (data.instance_interface_names | type == "list" and
+         (data.instance_interface_names | bodsch.core.type == "list" and
           data.instance_interface_names | count > 0)
         or
-         (data.instance_interface_names | type == "string"  and
+         (data.instance_interface_names | bodsch.core.type == "string"  and
           data.instance_interface_names | string | length > 0) %}
 instance_interface_names:
-    {% if data.instance_interface_names | type == "list" %}
+    {% if data.instance_interface_names | bodsch.core.type == "list" %}
       {% for i in data.instance_interface_names %}
   - {{ i }}
       {% endfor %}
@@ -202,7 +202,7 @@ default_validity: {{ data.default_validity }}
   {% endif %}
   {% if data.enable_fifocache is defined %}
 # NOTE: `fifocache` is deprecated. Use `embedded-cache` instead.
-enable_fifocache: {{ data.enable_fifocache | bool | ternary('true','false') }}
+enable_fifocache: {{ data.enable_fifocache | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
     {% if data.enable_fifocache | bool %}
 fifocache:
   max_size_bytes: {{ data.fifocache.max_size_bytes | default("1GB") }}
@@ -219,7 +219,7 @@ fifocache:
         data.embedded_cache | count > 0 and
         data.embedded_cache.enabled | default('false') %}
 embedded_cache:
-  enabled: {{ data.embedded_cache.enabled | default('false') | bool | ternary('true','false') }}
+  enabled: {{ data.embedded_cache.enabled | default('false') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
   max_size_mb: {{ data.embedded_cache.max_size_mb | default('100') }}
   ttl: {{ data.embedded_cache.ttl | default('1h') }}
   {% endif %}
@@ -257,7 +257,7 @@ memcached_client:
   timeout: {{ data.memcached_client.timeout | default('100ms') }}
   max_idle_conns: {{ data.memcached_client.max_idle_conns | default('16') }}
   update_interval: {{ data.memcached_client.update_interval | default('1m') }}
-  consistent_hash: {{ data.memcached_client.consistent_hash | default('true') | bool | ternary('true','false') }}
+  consistent_hash: {{ data.memcached_client.consistent_hash | default('true') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
   circuit_breaker_consecutive_failures: {{ data.memcached_client.circuit_breaker_consecutive_failures | default('10') }}
   circuit_breaker_timeout: {{ data.memcached_client.circuit_breaker_timeout | default('10s') }}
   circuit_breaker_interval: {{ data.memcached_client.circuit_breaker_interval | default('10s') }}
@@ -290,7 +290,7 @@ redis:
     {% if data.redis.tls_enabled is defined and
           data.redis.tls_enabled %}
   tls_enabled: true
-  tls_insecure_skip_verify: {{ data.redis.tls_insecure_skip_verify | default('false') | bool | ternary('true','false') }}
+  tls_insecure_skip_verify: {{ data.redis.tls_insecure_skip_verify | default('false') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
     {% endif %}
   idle_timeout: {{ data.redis.idle_timeout | default('0s') }}
   max_connection_age: {{ data.redis.max_connection_age | default('0s') }}
@@ -422,7 +422,7 @@ inactive_read_scale:
 {% if not data %}
 # not provision_config data defined
 {% else %}
-enabled: {{ data.enabled | default('false') | bool | ternary('true','false') }}
+enabled: {{ data.enabled | default('false') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }}
   {% if data.enabled | default('false') %}
     {% if data.role_arn is defined and
           data.role_arn | string | length > 0 %}

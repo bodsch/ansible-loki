@@ -3,12 +3,7 @@
 - name: converge
   hosts: instance
   any_errors_fatal: false
-  gather_facts: true
-
-  environment:
-    NETRC: ''
+  become: false
 
   roles:
     - role: ansible-loki
-
-...

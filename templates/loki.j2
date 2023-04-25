@@ -12,10 +12,10 @@ OPTIONS="
   -validation.create-grace-period {{ loki_config_service.validation.create_grace_period }} \
       {% endif %}
       {% if loki_config_service.validation.enforce_metric_name is defined %}
-  -validation.enforce-metric-name {{ loki_config_service.validation.enforce_metric_name | default('true') | bool | ternary('true','false') }} \
+  -validation.enforce-metric-name {{ loki_config_service.validation.enforce_metric_name | default('true') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }} \
       {% endif %}
       {% if loki_config_service.validation.increment_duplicate_timestamps is defined %}
-  -validation.increment-duplicate-timestamps {{ loki_config_service.validation.increment_duplicate_timestamps | default('true') | bool | ternary('true','false') }} \
+  -validation.increment-duplicate-timestamps {{ loki_config_service.validation.increment_duplicate_timestamps | default('true') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }} \
       {% endif %}
       {% if loki_config_service.validation.max_entries_limit is defined and
             loki_config_service.validation.max_entries_limit | string | length > 0 %}
@@ -34,7 +34,7 @@ OPTIONS="
   -validation.max-length-label-value {{ loki_config_service.validation.max_length_label_value }} \
       {% endif %}
       {% if loki_config_service.validation.reject_old_samples is defined %}
-  -validation.reject-old-samples {{ loki_config_service.validation.reject_old_samples | default('true') | bool | ternary('true','false') }} \
+  -validation.reject-old-samples {{ loki_config_service.validation.reject_old_samples | default('true') | bool | bodsch.core.config_bool(true_as='true', false_as='false') }} \
       {% endif %}
       {% if loki_config_service.validation.reject_old_samples_max_age is defined and
             loki_config_service.validation.reject_old_samples_max_age | string | length > 0 %}
@@ -43,7 +43,6 @@ OPTIONS="
     {% endif %}
   {% endif %}
 "
-
 {#
 > loki -h
 Usage of config-file-loader:

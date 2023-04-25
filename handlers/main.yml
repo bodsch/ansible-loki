@@ -8,7 +8,7 @@
   when:
     - ansible_service_mgr | lower == "systemd"
 
-- name: verify config
+- name: verify config  # noqa no-changed-when
   become: true
   ansible.builtin.command: |
     loki \
