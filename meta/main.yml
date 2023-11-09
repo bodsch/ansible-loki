@@ -2,7 +2,6 @@
 
 galaxy_info:
   role_name: loki
-  namespace: bodsch
 
   author: Bodo Schulz
   description: ansible role to setup loki
