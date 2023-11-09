@@ -51,12 +51,11 @@ Tested on
 
 * Arch Linux
 * Debian based
-    - Debian 10 / 11
-    - Ubuntu 20.10
-* RedHat based
-    - Alma Linux 8
-    - Rocky Linux 8
-    - Oracle Linux 8
+    - Debian 10 / 11 / 12
+    - Ubuntu 20.04 / 22.04
+
+> **RedHat-based systems are no longer officially supported! May work, but does not have to.**
+
 
 ## usage
 
