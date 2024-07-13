@@ -1,6 +1,9 @@
 
 # Ansible Role:  `loki`
 
+> Further development of this Ansible role has been moved to Collection [bodsch.grafana](https://github.com/bodsch/ansible-collection-grafana).
+> **This repository will therefore no longer be actively maintained.**
+
 Ansible role to setup [Loki](https://github.com/grafana/loki).
 
 
